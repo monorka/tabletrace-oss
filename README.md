@@ -10,19 +10,35 @@ Real-time visualization of database changes across multiple tables.
 
 ## Features
 
-- **Real-time Table Watching** - Monitor INSERT, UPDATE, DELETE operations as they happen
-- **Multi-table View** - Watch multiple tables simultaneously with color-coded changes
-- **Event Timeline** - Chronological view of all database changes with correlation grouping
-- **ERD Visualization** - Interactive Entity Relationship Diagram
-  - Drag-and-drop table positioning
-  - Foreign key relationship lines with cardinality notation
-  - Schema filtering
-  - Table detail panel on hover
-- **Dry Run Mode** - Test SQL queries safely (changes are rolled back, database is not modified)
-- **Change Highlighting**
-  - Green: INSERT (new rows)
-  - Yellow: UPDATE (modified rows)
-  - Red: DELETE (removed rows)
+### Real-time Table Watching
+
+Monitor INSERT, UPDATE, DELETE operations as they happen. Watch multiple tables simultaneously with color-coded changes.
+
+![Real-time Table Watching](demo/1_RealTimeTableWaching.gif)
+
+### Event Timeline
+
+Chronological view of all database changes with correlation grouping.
+
+![Event Timeline](demo/2_EventTimeline.gif)
+
+### ERD Visualization
+
+Interactive Entity Relationship Diagram with drag-and-drop positioning, foreign key relationships, and schema filtering.
+
+![ERD Visualization](demo/3_ERDiagram.gif)
+
+### Dry Run Mode
+
+Test SQL queries safely - changes are rolled back, database is not modified.
+
+![Dry Run Mode](demo/4_DryRunMode.gif)
+
+### Change Highlighting
+
+- 🟢 Green: INSERT (new rows)
+- 🟡 Yellow: UPDATE (modified rows)
+- 🔴 Red: DELETE (removed rows)
 
 ## Supported Databases
 
