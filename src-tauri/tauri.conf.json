@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "TableTrace",
+  "version": "0.1.0",
+  "identifier": "com.tabletrace.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "TableTrace",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "createUpdaterArtifacts": true,
+    "copyright": "© 2025 Monorka Inc.",
+    "shortDescription": "Real-time database change visualization",
+    "longDescription": "TableTrace monitors PostgreSQL tables in real-time and visualizes INSERT, UPDATE, DELETE changes with color-coded highlights.",
+    "category": "DeveloperTool",
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhERkQyOUE1NTAyRDc4RkQKUldUOWVDMVFwU245alNLSDB6SFJWS0tHVWNEVzVrc2ZMN2pVT1lFU2UvMmxhSVlBNzAwRHNOVlMK",
+      "endpoints": [
+        "https://github.com/monorka/tabletrace-oss/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}
