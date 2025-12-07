@@ -42,7 +42,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhERkQyOUE1NTAyRDc4RkQKUldUOWVDMVFwU245alNLSDB6SFJWS0tHVWNEVzVrc2ZMN2pVT1lFU2UvMmxhSVlBNzAwRHNOVlMK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU0OENDMzQzN0EwRDdDNEIKUldSTGZBMTZROE9NNUhycktlMlVsaHBxUmV5Ukg3bjJQTkpBN0VBak1LYnArc0dTR2FKcHhicWIK",
       "endpoints": [
         "https://github.com/monorka/tabletrace-oss/releases/latest/download/latest.json"
       ]
