@@ -23,7 +23,7 @@
     "@tauri-apps/plugin-opener": "^2.3.1",
     "@tauri-apps/plugin-process": "2.3.1",
     "@tauri-apps/plugin-updater": "2.9.0",
-    "@xyflow/react": "^12.9.3",
+    "@xyflow/react": "^12.10.0",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.555.0",
     "react": "^19.1.0",
