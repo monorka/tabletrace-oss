@@ -26,7 +26,7 @@ export function AppHeader({
   onSettingsOpen,
 }: AppHeaderProps) {
   return (
-    <header className="h-12 border-b border-[var(--border-color)] flex items-center justify-between px-4 bg-[var(--bg-secondary)] no-select">
+    <header className="h-12 border-b border-border flex items-center justify-between px-4 bg-card no-select">
       <AppTitle />
 
       <div className="flex items-center gap-4">

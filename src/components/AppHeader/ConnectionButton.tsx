@@ -21,7 +21,7 @@ export function ConnectionButton({
         size="sm"
         className={cn(
           "text-xs",
-          "bg-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/80",
+          "bg-accent-purple hover:bg-accent-purple/80",
           "text-white"
         )}
       >
@@ -38,8 +38,8 @@ export function ConnectionButton({
         size="sm"
         className={cn(
           "text-xs",
-          "text-[var(--text-secondary)]",
-          "hover:text-[var(--accent-red)] hover:bg-[var(--accent-red)]/10"
+          "text-muted-foreground",
+          "hover:text-accent-red hover:bg-accent-red/10"
         )}
       >
         <LogOut className="w-3 h-3" />

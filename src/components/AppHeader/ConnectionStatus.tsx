@@ -1,5 +1,7 @@
-import { StatusIndicator } from "../ui";
+import { Badge } from "../ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ConnectionStatus as ConnectionStatusType } from "../../stores/connectionStore";
+import { cn } from "../../lib/utils";
 
 interface ConnectionStatusProps {
   status: ConnectionStatusType;
@@ -11,29 +13,82 @@ export function ConnectionStatus({ status, config }: ConnectionStatusProps) {
     ? `${config.user}@${config.host}:${config.port}/${config.database}`
     : "";
 
-  return (
-    <div className="flex items-center gap-2 group relative">
-      <StatusIndicator status={status} />
-      <span className="text-xs text-[var(--text-secondary)]">
-        {status === "disconnected" && "Not Connected"}
-        {status === "connecting" && "Connecting..."}
-        {status === "connected" && (
+  const getStatusLabel = () => {
+    switch (status) {
+      case "disconnected":
+        return "Not Connected";
+      case "connecting":
+        return "Connecting...";
+      case "connected":
+        return (
           <span className="flex items-center gap-1">
-            <span className="font-medium text-[var(--text-primary)]">{config?.database}</span>
+            <span className="font-medium">{config?.database}</span>
             <span className="opacity-60">@</span>
             <span>{config?.host}:{config?.port}</span>
           </span>
+        );
+      case "error":
+        return "Connection Error";
+      default:
+        return "Unknown";
+    }
+  };
+
+  const getStatusVariant = (): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+      case "connected":
+        return "default";
+      case "connecting":
+        return "outline";
+      case "error":
+        return "destructive";
+      case "disconnected":
+      default:
+        return "secondary";
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (status) {
+      case "connected":
+        return "bg-accent-green text-white border-accent-green";
+      case "connecting":
+        return "bg-accent-yellow/20 text-accent-yellow border-accent-yellow";
+      default:
+        return "";
+    }
+  };
+
+  const content = (
+    <div className="flex items-center gap-2">
+      <Badge
+        variant={getStatusVariant()}
+        className={cn(
+          "text-xs px-2 py-0.5",
+          getStatusColor()
         )}
-        {status === "error" && "Connection Error"}
-      </span>
-      {/* Tooltip with full connection info */}
-      {status === "connected" && connectionInfo && (
-        <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
-          <div className="text-[10px] text-[var(--text-secondary)] mb-1">Connection</div>
-          <div className="text-xs font-mono">{connectionInfo}</div>
-        </div>
-      )}
+      >
+        {getStatusLabel()}
+      </Badge>
     </div>
   );
+
+  if (status === "connected" && connectionInfo) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {content}
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-xs">
+          <div className="space-y-1">
+            <div className="text-[10px] text-muted-foreground">Connection</div>
+            <div className="text-xs font-mono">{connectionInfo}</div>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return content;
 }
 

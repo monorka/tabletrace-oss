@@ -37,6 +37,18 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Accent colors for light mode */
+  --accent-purple: #6366f1;
+  --accent-green: #22c55e;
+  --accent-yellow: #eab308;
+  --accent-blue: #3b82f6;
+  --accent-red: #ef4444;
+
+  /* Highlight colors for row changes */
+  --highlight-insert: rgba(34, 197, 94, 0.25);
+  --highlight-update: rgba(234, 179, 8, 0.25);
+  --highlight-delete: rgba(239, 68, 68, 0.25);
 }
 
 .dark {
@@ -54,8 +66,6 @@
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --accent-purple: #6366f1;
-  --accent-green: #22c55e;
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.269 0 0);
@@ -74,6 +84,17 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+
+  --accent-purple: #6366f1;
+  --accent-green: #22c55e;
+  --accent-yellow: #eab308;
+  --accent-blue: #3b82f6;
+  --accent-red: #ef4444;
+
+  /* Highlight colors for row changes */
+  --highlight-insert: rgba(34, 197, 94, 0.25);
+  --highlight-update: rgba(234, 179, 8, 0.25);
+  --highlight-delete: rgba(239, 68, 68, 0.25);
 }
 
 @theme inline {
@@ -113,18 +134,69 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-green: var(--accent-green);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-red: var(--accent-red);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
+
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
-    background: var(--bg-primary);
-    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar for dark mode */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background: var(--card);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a4a;
+  }
+
+  /* Disable text selection on UI elements */
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Row highlight styles - persist while in event log */
+  .row-insert {
+    background: var(--highlight-insert) !important;
+  }
+
+  .row-update {
+    background: var(--highlight-update) !important;
+  }
+
+  .row-delete {
+    background: var(--highlight-delete) !important;
   }
 }

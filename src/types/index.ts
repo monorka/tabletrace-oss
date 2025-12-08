@@ -17,8 +17,11 @@ export interface LayoutSettings {
   eventLogPosition: EventLogPosition;
 }
 
+export type Theme = "light" | "dark" | "system";
+
 export interface AppSettings {
   maxDisplayRows: number;
+  theme: Theme;
 }
 
 export const defaultLayoutSettings: LayoutSettings = {
@@ -28,6 +31,7 @@ export const defaultLayoutSettings: LayoutSettings = {
 
 export const defaultAppSettings: AppSettings = {
   maxDisplayRows: 1000,
+  theme: "system",
 };
 
 // ============================================

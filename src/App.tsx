@@ -20,6 +20,7 @@ import {
   loadAppSettings,
   saveAppSettings,
 } from "./utils";
+import { initializeTheme, applyTheme } from "./utils/theme";
 
 function App() {
   const {
@@ -50,6 +51,12 @@ function App() {
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [layoutSettings, setLayoutSettings] = useState<LayoutSettings>(loadLayoutSettings);
   const [appSettings, setAppSettings] = useState<AppSettings>(loadAppSettings);
+
+  // Initialize and apply theme
+  useEffect(() => {
+    initializeTheme(appSettings.theme);
+    applyTheme(appSettings.theme);
+  }, [appSettings.theme]);
 
   // Save layout settings when changed
   useEffect(() => {
@@ -93,7 +100,7 @@ function App() {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col bg-[var(--bg-primary)]">
+    <div className="h-screen w-full flex flex-col bg-background">
       {/* Update Checker */}
       <UpdateChecker />
 
@@ -119,13 +126,15 @@ function App() {
       </AnimatePresence>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
-        <AppSidebar
-          activeTab={activeTab}
-          layoutSettings={layoutSettings}
-          onTabChange={setActiveTab}
-          onToggleTableList={toggleTableList}
-        />
+        {/* Sidebar - Only show when connected */}
+        {status === "connected" && (
+          <AppSidebar
+            activeTab={activeTab}
+            layoutSettings={layoutSettings}
+            onTabChange={setActiveTab}
+            onToggleTableList={toggleTableList}
+          />
+        )}
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col overflow-hidden">

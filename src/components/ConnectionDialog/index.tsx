@@ -198,15 +198,15 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
     }
   };
 
-  const accentColor = activeTab === "postgres" ? "var(--accent-purple)" : "var(--accent-green)";
   const config = form.watch() as PgConfig;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         className={cn(
-          "max-w-md p-0 overflow-hidden",
-          "bg-secondary border-border"
+          "max-w-md w-full p-0 overflow-hidden",
+          "bg-card border-border",
+          "min-h-[600px] flex flex-col"
         )}
         showCloseButton={false}
       >
@@ -215,13 +215,17 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
-                className="p-2 rounded-lg transition-colors"
-                style={{ backgroundColor: `color-mix(in srgb, ${accentColor} 20%, transparent)` }}
+                className={cn(
+                  "p-2 rounded-lg transition-colors",
+                  activeTab === "postgres" 
+                    ? "bg-accent-purple/20" 
+                    : "bg-accent-green/20"
+                )}
               >
                 {activeTab === "postgres" ? (
-                  <Database className="w-5 h-5" style={{ color: accentColor }} />
+                  <Database className={cn("w-5 h-5", "text-accent-purple")} />
                 ) : (
-                  <Zap className="w-5 h-5" style={{ color: accentColor }} />
+                  <Zap className={cn("w-5 h-5", "text-accent-green")} />
                 )}
               </div>
               <div>
@@ -238,32 +242,36 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
               <div className="flex border-b border-border">
                 <button
                   onClick={() => handleTabChange("postgres")}
-                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                  className={cn(
+                    "flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2",
                     activeTab === "postgres"
                       ? "text-accent-purple border-b-2 border-accent-purple bg-accent-purple/5"
-                      : "text-muted-foreground hover:text-primary hover:bg-bg-tertiary"
-                  }`}
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
                 >
                   <Database className="w-4 h-4" />
-                  PostgreSQL
+                  <span className="hidden sm:inline">PostgreSQL</span>
+                  <span className="sm:hidden">PG</span>
                 </button>
                 <button
                   onClick={() => handleTabChange("supabase")}
-                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                  className={cn(
+                    "flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2",
                     activeTab === "supabase"
                       ? "text-accent-green border-b-2 border-accent-green bg-accent-green/5"
-                      : "text-muted-foreground hover:text-primary hover:bg-bg-tertiary"
-                  }`}
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
                 >
                   <Zap className="w-4 h-4" />
-                  Supabase
+                  <span className="hidden sm:inline">Supabase</span>
+                  <span className="sm:hidden">SB</span>
                 </button>
               </div>
 
 
               {/* Form */}
               <Form {...form}>
-                <form id="connection-form" onSubmit={form.handleSubmit(handleConnect)} className="p-6 space-y-4">
+                <form id="connection-form" onSubmit={form.handleSubmit(handleConnect)} className="p-4 sm:p-6 space-y-4 flex-1 overflow-y-auto min-h-0">
                   {activeTab === "supabase" ? (
                     <>
                       {/* Port Only */}
@@ -286,14 +294,14 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
                       />
 
                     {/* Info Box */}
-                    <div className="p-3 rounded-lg bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20">
-                      <p className="text-xs text-[var(--accent-green)] font-medium mb-1">
+                    <div className="p-3 rounded-lg bg-accent-green/10 border border-accent-green/20">
+                      <p className="text-xs text-accent-green font-medium mb-1">
                         Supabase Local (CLI)
                       </p>
-                      <p className="text-[10px] text-[var(--text-secondary)]">
+                      <p className="text-[10px] text-muted-foreground">
                         Connects to <span className="font-mono">localhost:{config.port}</span> with default credentials
                       </p>
-                      <p className="text-[10px] text-[var(--text-secondary)] mt-1 font-mono opacity-70">
+                      <p className="text-[10px] text-muted-foreground mt-1 font-mono opacity-70">
                         user: postgres / password: postgres
                       </p>
                     </div>
@@ -302,12 +310,12 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
                   <>
                       {/* PostgreSQL Full Form */}
                       {/* Host & Port */}
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <FormField
                           control={form.control as any}
                           name="host"
                           render={({ field }) => (
-                            <FormItem className="col-span-2">
+                            <FormItem className="sm:col-span-2">
                               <FormLabel className="text-xs">Host</FormLabel>
                               <FormControl>
                                 <Input {...field} />
@@ -396,9 +404,9 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
                         name="use_ssl"
                         render={({ field }) => (
                           <FormItem>
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-color)]">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-background border border-border">
                               <div className="flex items-center gap-2">
-                                <Shield className={`w-4 h-4 ${field.value ? 'text-[var(--accent-green)]' : 'text-[var(--text-secondary)]'}`} />
+                                <Shield className={cn("w-4 h-4", field.value ? "text-accent-green" : "text-muted-foreground")} />
                                 <div>
                                   <FormLabel className="text-sm font-medium cursor-pointer">Use SSL</FormLabel>
                                   <FormDescription className="text-[10px]">
@@ -419,13 +427,13 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
 
                       {/* SSL Warning for remote connections */}
                       {!config.use_ssl && !['localhost', '127.0.0.1', '::1'].includes(config.host?.toLowerCase() || '') && config.host && (
-                        <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[var(--accent-yellow)]/10 border border-[var(--accent-yellow)]/30">
-                          <Shield className="w-4 h-4 text-[var(--accent-yellow)] flex-shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-accent-yellow/10 border border-accent-yellow/30">
+                          <Shield className="w-4 h-4 text-accent-yellow shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-xs font-medium text-[var(--accent-yellow)]">
+                            <p className="text-xs font-medium text-accent-yellow">
                               SSL Disabled for Remote Connection
                             </p>
-                            <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
                               Your password and data will be transmitted in plain text. Enable SSL for secure connections to remote servers.
                             </p>
                           </div>
@@ -438,11 +446,12 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
                 <AnimatePresence>
                   {testResult && (
                     <div
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 rounded-lg text-sm",
                         testResult === "success"
-                          ? "bg-[var(--accent-green)]/10 text-[var(--accent-green)]"
-                          : "bg-[var(--accent-red)]/10 text-[var(--accent-red)]"
-                      }`}
+                          ? "bg-accent-green/10 text-accent-green"
+                          : "bg-accent-red/10 text-accent-red"
+                      )}
                     >
                       {testResult === "success" ? (
                         <>
@@ -461,8 +470,8 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
 
                   {/* Error message */}
                   {status === "error" && (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-[var(--accent-red)]/10 text-[var(--accent-red)]">
-                      <XCircle className="w-4 h-4 flex-shrink-0" />
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-accent-red/10 text-accent-red">
+                      <XCircle className="w-4 h-4 shrink-0" />
                       <span className="truncate">
                         {useConnectionStore.getState().errorMessage}
                       </span>
@@ -472,32 +481,32 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
               </Form>
 
         {/* Footer */}
-        <DialogFooter className="px-6 py-4 border-t border-[var(--border-color)] bg-[var(--bg-primary)]/50 flex-row justify-between">
+        <DialogFooter className="px-4 sm:px-6 py-4 border-t border-border bg-background/50 flex-col sm:flex-row gap-2 sm:justify-between">
           <Button
             type="button"
             onClick={handleTestConnection}
             disabled={testing || status === "connecting" || !config.host || !config.database}
             variant="ghost"
             size="sm"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="text-muted-foreground hover:text-foreground w-full sm:w-auto"
           >
             {testing ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Testing...
+                <span className="ml-2">Testing...</span>
               </>
             ) : (
               "Test Connection"
             )}
           </Button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Button
               type="button"
               onClick={onClose}
               variant="ghost"
               size="sm"
-              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className="text-muted-foreground hover:text-foreground flex-1 sm:flex-initial"
             >
               Cancel
             </Button>
@@ -507,19 +516,19 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
               disabled={status === "connecting" || !config.host || !config.database}
               size="sm"
               className={cn(
-                "text-white",
+                "text-white flex-1 sm:flex-initial",
+                activeTab === "postgres" 
+                  ? "bg-accent-purple hover:bg-accent-purple/90" 
+                  : "bg-accent-green hover:bg-accent-green/90",
                 status === "connecting" || !config.host || !config.database
                   ? "opacity-50"
                   : ""
               )}
-              style={{
-                backgroundColor: accentColor,
-              }}
             >
               {status === "connecting" ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Connecting...
+                  <span className="ml-2">Connecting...</span>
                 </>
               ) : (
                 "Connect"

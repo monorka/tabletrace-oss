@@ -1,5 +1,15 @@
 import { Table2, Clock, GitBranch, FlaskConical } from "lucide-react";
-import { SidebarButton } from "./ui";
+import { cn } from "@/lib/utils";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarProvider,
+} from "./ui/sidebar";
 import { TabType, LayoutSettings } from "../types";
 
 interface AppSidebarProps {
@@ -9,6 +19,29 @@ interface AppSidebarProps {
   onToggleTableList: () => void;
 }
 
+const navItems = [
+  {
+    title: "Tables",
+    icon: Table2,
+    tab: "tables" as TabType,
+  },
+  {
+    title: "Timeline",
+    icon: Clock,
+    tab: "timeline" as TabType,
+  },
+  {
+    title: "ERD Graph",
+    icon: GitBranch,
+    tab: "erd" as TabType,
+  },
+  {
+    title: "Dry Run (Preview SQL)",
+    icon: FlaskConical,
+    tab: "dryrun" as TabType,
+  },
+];
+
 export function AppSidebar({
   activeTab,
   layoutSettings,
@@ -16,44 +49,61 @@ export function AppSidebar({
   onToggleTableList,
 }: AppSidebarProps) {
   return (
-    <aside className="w-12 border-r border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col items-center py-3 gap-2 no-select">
-      <SidebarButton
-        icon={<Table2 className="w-5 h-5" />}
-        active={activeTab === "tables"}
-        onClick={() => {
-          if (activeTab === "tables") {
-            // Toggle table list panel when already on tables tab
-            onToggleTableList();
-          } else {
-            onTabChange("tables");
-            // Open table list if closed when switching to tables tab
-            if (!layoutSettings.tableListOpen) {
-              onToggleTableList();
-            }
-          }
-        }}
-        tooltip={layoutSettings.tableListOpen ? "Hide Tables" : "Show Tables"}
-        highlight={!layoutSettings.tableListOpen && activeTab === "tables"}
-      />
-      <SidebarButton
-        icon={<Clock className="w-5 h-5" />}
-        active={activeTab === "timeline"}
-        onClick={() => onTabChange("timeline")}
-        tooltip="Timeline"
-      />
-      <SidebarButton
-        icon={<GitBranch className="w-5 h-5" />}
-        active={activeTab === "erd"}
-        onClick={() => onTabChange("erd")}
-        tooltip="ERD Graph"
-      />
-      <SidebarButton
-        icon={<FlaskConical className="w-5 h-5" />}
-        active={activeTab === "dryrun"}
-        onClick={() => onTabChange("dryrun")}
-        tooltip="Dry Run (Preview SQL)"
-      />
-    </aside>
+    <SidebarProvider>
+      <Sidebar
+        collapsible="none"
+        className="!w-[calc(var(--sidebar-width-icon)+1px)] border-r"
+      >
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupContent className="px-1.5 md:px-0">
+              <SidebarMenu>
+                {navItems.map((item) => {
+                  const isActive = activeTab === item.tab;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        tooltip={{
+                          children: item.title,
+                          hidden: false,
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (item.tab === "tables") {
+                            if (activeTab === "tables") {
+                              // Toggle table list panel when already on tables tab
+                              onToggleTableList();
+                            } else {
+                              onTabChange("tables");
+                              // Open table list if closed when switching to tables tab
+                              if (!layoutSettings.tableListOpen) {
+                                onToggleTableList();
+                              }
+                            }
+                          } else {
+                            onTabChange(item.tab);
+                          }
+                        }}
+                        isActive={isActive}
+                        className={cn(
+                          "px-2.5 md:px-2",
+                          isActive
+                            ? "bg-accent-purple/20 text-accent-purple hover:bg-accent-purple/30 data-[active=true]:bg-accent-purple/20 data-[active=true]:text-accent-purple"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        )}
+                      >
+                        <item.icon className="size-4" />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+    </SidebarProvider>
   );
 }
 

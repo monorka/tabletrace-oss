@@ -5,7 +5,7 @@
 export { WelcomeView } from "./WelcomeView";
 export { ConnectedView } from "./ConnectedView";
 export { TimelineView } from "./TimelineView";
-export { SettingsDialog } from "./SettingsDialog";
+export { SettingsDialog } from "../SettingsDialog";
 
 
 
