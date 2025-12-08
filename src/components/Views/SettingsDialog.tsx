@@ -3,12 +3,20 @@
  */
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Download, Check, RefreshCw, ExternalLink } from "lucide-react";
 import { SettingsDialogProps, AppSettings, defaultAppSettings } from "../../types";
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { VERSION } from "../../index";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
 
 interface UpdateState {
   checking: boolean;
@@ -106,47 +114,21 @@ export function SettingsDialog({ isOpen, onClose, settings, onSave }: SettingsDi
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-            onClick={onClose}
-          />
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader className="px-6 pt-6 pb-0">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[var(--accent-purple)]/20">
+              <Settings className="w-5 h-5 text-[var(--accent-purple)]" />
+            </div>
+            <div>
+              <DialogTitle>Settings</DialogTitle>
+              <DialogDescription>Configure app behavior</DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
 
-          {/* Dialog */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm"
-          >
-            <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl shadow-2xl overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)]">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-[var(--accent-purple)]/20">
-                    <Settings className="w-5 h-5 text-[var(--accent-purple)]" />
-                  </div>
-                  <div>
-                    <h2 className="font-semibold">Settings</h2>
-                    <p className="text-xs text-[var(--text-secondary)]">Configure app behavior</p>
-                  </div>
-                </div>
-                <button
-                  onClick={onClose}
-                  className="p-1.5 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-[var(--text-secondary)]"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 space-y-5">
+        <div className="px-6 pb-6 space-y-5">
                 {/* Max Display Rows */}
                 <div>
                   <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2">
@@ -200,14 +182,16 @@ export function SettingsDialog({ isOpen, onClose, settings, onSave }: SettingsDi
                           </span>
                         )}
                       </div>
-                      <button
+                      <Button
                         onClick={checkForUpdates}
                         disabled={updateState.checking}
-                        className="p-1 rounded hover:bg-[var(--bg-tertiary)] transition-colors disabled:opacity-50"
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-auto w-auto p-1"
                         title="Check for updates"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 text-[var(--text-secondary)] ${updateState.checking ? 'animate-spin' : ''}`} />
-                      </button>
+                      </Button>
                     </div>
 
                     {/* Update Progress */}
@@ -227,13 +211,14 @@ export function SettingsDialog({ isOpen, onClose, settings, onSave }: SettingsDi
 
                     {/* Update Button */}
                     {updateState.available && !updateState.downloading && (
-                      <button
+                      <Button
                         onClick={handleUpdate}
-                        className="mt-2 w-full px-3 py-1.5 text-xs font-medium rounded-md bg-[var(--accent-green)] text-white hover:bg-[var(--accent-green)]/90 transition-colors flex items-center justify-center gap-1.5"
+                        className="mt-2 w-full bg-[var(--accent-green)] hover:bg-[var(--accent-green)]/90 text-white"
+                        size="sm"
                       >
                         <Download className="w-3.5 h-3.5" />
                         Update to v{updateState.version}
-                      </button>
+                      </Button>
                     )}
 
                     {/* Error */}
@@ -255,37 +240,37 @@ export function SettingsDialog({ isOpen, onClose, settings, onSave }: SettingsDi
                     View all releases on GitHub
                   </a>
                 </div>
+        </div>
 
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between px-6 py-4 border-t border-[var(--border-color)] bg-[var(--bg-primary)]/50">
-                <button
-                  onClick={handleReset}
-                  className="px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-md transition-colors"
-                >
-                  Reset to Default
-                </button>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={onClose}
-                    className="px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-md transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className="px-4 py-1.5 text-xs font-medium bg-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/80 rounded-md transition-colors"
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        <DialogFooter className="border-t border-[var(--border-color)] bg-[var(--bg-primary)]/50 px-6 py-4">
+          <Button
+            onClick={handleReset}
+            variant="ghost"
+            size="sm"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          >
+            Reset to Default
+          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="sm"
+              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              size="sm"
+              className="bg-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/80 text-white"
+            >
+              Save
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
