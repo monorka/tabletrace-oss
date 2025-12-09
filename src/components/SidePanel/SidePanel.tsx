@@ -17,6 +17,8 @@ export interface SidePanelProps {
   erdHoveredTable?: ERDHoveredTable | null;
   erdExpandedEventIds?: Set<string>;
   erdOnToggleExpanded?: (id: string) => void;
+  eventLogExpandedEventIds?: Set<string>;
+  eventLogOnToggleExpanded?: (id: string) => void;
   dryRunSql?: string;
   setDryRunSql?: (sql: string) => void;
   isDryRunning?: boolean;
@@ -32,6 +34,8 @@ export function SidePanel({
   erdHoveredTable,
   erdExpandedEventIds,
   erdOnToggleExpanded,
+  eventLogExpandedEventIds,
+  eventLogOnToggleExpanded,
   dryRunSql,
   setDryRunSql,
   isDryRunning,
@@ -74,11 +78,14 @@ export function SidePanel({
   }
 
   // Event Log Panel (default for tables and timeline tabs)
+  // Pass shared state to maintain consistency across tabs
   return (
     <EventLogPanel
       events={events}
       onClearEvents={onClearEvents}
       isBottom={isBottom}
+      expandedEventIds={eventLogExpandedEventIds}
+      onToggleExpanded={eventLogOnToggleExpanded}
     />
   );
 }

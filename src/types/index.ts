@@ -152,6 +152,8 @@ export interface EventLogPanelProps {
   events: TableChange[];
   onClearEvents: () => void;
   isBottom?: boolean;
+  expandedEventIds?: Set<string>;
+  onToggleExpanded?: (id: string) => void;
 }
 
 export interface SettingsDialogProps {

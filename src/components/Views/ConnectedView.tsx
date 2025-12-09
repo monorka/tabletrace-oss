@@ -93,6 +93,8 @@ export function ConnectedView({
             erdHoveredTable={erdHoveredTable}
             erdExpandedEventIds={eventLog.expandedIds}
             erdOnToggleExpanded={eventLog.toggleExpanded}
+            eventLogExpandedEventIds={eventLog.expandedIds}
+            eventLogOnToggleExpanded={eventLog.toggleExpanded}
             dryRunSql={dryRun.sql}
             setDryRunSql={dryRun.setSql}
             isDryRunning={dryRun.isRunning}
@@ -112,6 +114,8 @@ export function ConnectedView({
           erdHoveredTable={erdHoveredTable}
           erdExpandedEventIds={eventLog.expandedIds}
           erdOnToggleExpanded={eventLog.toggleExpanded}
+          eventLogExpandedEventIds={eventLog.expandedIds}
+          eventLogOnToggleExpanded={eventLog.toggleExpanded}
           dryRunSql={dryRun.sql}
           setDryRunSql={dryRun.setSql}
           isDryRunning={dryRun.isRunning}
