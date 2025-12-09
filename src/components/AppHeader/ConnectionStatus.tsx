@@ -51,7 +51,7 @@ export function ConnectionStatus({ status, config }: ConnectionStatusProps) {
   const getStatusColor = () => {
     switch (status) {
       case "connected":
-        return "bg-accent-green text-white border-accent-green";
+        return "bg-accent-green/20 text-accent-green border-accent-green";
       case "connecting":
         return "bg-accent-yellow/20 text-accent-yellow border-accent-yellow";
       default:

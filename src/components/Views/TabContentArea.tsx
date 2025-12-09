@@ -3,7 +3,7 @@
  */
 
 import { AnimatePresence } from "framer-motion";
-import { TabType } from "../../types";
+import { TabType, ERDHoveredTable } from "../../types";
 import { TableInfo, ForeignKeyInfo } from "../../lib/tauri";
 import { TableChange, DryRunChange } from "../../lib/tauri";
 import { WatchedTableData, TableChangeInfo } from "../../stores/connectionStore";
@@ -24,7 +24,7 @@ export interface TabContentAreaProps {
   onSelectTable: (schema: string, table: string) => void;
   selectedTable?: { schema: string; table: string };
   onClearEvents: () => void;
-  onHoveredTableChange?: (table: any) => void;
+  onHoveredTableChange?: (table: ERDHoveredTable | null) => void;
   getDryRunChangesForTable?: (schema: string, table: string) => DryRunChange[];
 }
 

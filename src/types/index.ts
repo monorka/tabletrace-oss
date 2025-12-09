@@ -2,7 +2,7 @@
  * Shared type definitions for TableTrace
  */
 
-import { TableChange, ColumnInfo, DryRunResult, DryRunChange, ForeignKeyInfo, TableInfo } from "../lib/tauri";
+import { TableChange, DryRunResult, DryRunChange, ForeignKeyInfo, TableInfo } from "../lib/tauri";
 import { WatchedTableData, TableChangeInfo } from "../stores/connectionStore";
 
 // ============================================
