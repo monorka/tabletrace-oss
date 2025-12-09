@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Table2, Eye, EyeOff } from "lucide-react";
 import { TableListItemProps } from "../../types";
+import { cn } from "../../lib/utils";
 
 export function TableListItem({
   schema: _schema,
@@ -22,10 +23,10 @@ export function TableListItem({
   const getFlashColor = () => {
     if (!statsChange || isWatched) return null;
     switch (statsChange.changeType) {
-      case "insert": return "var(--accent-green)";
-      case "update": return "var(--accent-yellow)";
-      case "delete": return "var(--accent-red)";
-      default: return "var(--accent-yellow)";
+      case "insert": return "rgb(var(--accent-green))";
+      case "update": return "rgb(var(--accent-yellow))";
+      case "delete": return "rgb(var(--accent-red))";
+      default: return "rgb(var(--accent-yellow))";
     }
   };
 
@@ -60,11 +61,11 @@ export function TableListItem({
 
   return (
     <div
-      className={`
-        group flex items-center justify-between px-2 py-1.5 rounded-md cursor-pointer transition-colors
-        ${isWatched ? "bg-[var(--accent-green)]/10" : "hover:bg-[var(--bg-tertiary)]"}
-        ${isSelected ? "ring-1 ring-[var(--accent-purple)]" : ""}
-      `}
+      className={cn(
+        "group flex items-center justify-between px-2 py-1.5 rounded-md cursor-pointer transition-colors",
+        isWatched ? "bg-accent-green/10" : "hover:bg-secondary",
+        isSelected && "ring-1 ring-accent-purple"
+      )}
       onClick={onToggleWatch}
       title={isWatched ? "Stop watching" : statsChange ? `Changed: +${statsChange.insertDelta} ~${statsChange.updateDelta} -${statsChange.deleteDelta}` : "Watch table"}
       style={flashColor && opacity > 0 ? {
@@ -72,10 +73,10 @@ export function TableListItem({
       } : {}}
     >
       <div className="flex items-center gap-2 min-w-0">
-        <Table2 className={`w-3.5 h-3.5 flex-shrink-0 ${isWatched ? "text-[var(--accent-green)]" : "text-[var(--text-secondary)]"}`} />
+        <Table2 className={cn("w-3.5 h-3.5 shrink-0", isWatched ? "text-accent-green" : "text-muted-foreground")} />
         <div className="min-w-0">
           <span className="text-xs truncate block">{name}</span>
-          <span className="text-[10px] text-[var(--text-secondary)]">{columnCount} cols</span>
+          <span className="text-[10px] text-muted-foreground">{columnCount} cols</span>
         </div>
       </div>
       <div className="flex items-center gap-1">
@@ -83,19 +84,18 @@ export function TableListItem({
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--accent-purple)]/20 text-[var(--accent-purple)]"
+            className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent-purple/20 text-accent-purple"
           >
             {changes}
           </motion.span>
         )}
         <div
-          className={`
-            p-1 rounded transition-colors
-            ${isWatched
-              ? "text-[var(--accent-green)]"
-              : "text-[var(--text-secondary)] opacity-0 group-hover:opacity-100"
-            }
-          `}
+          className={cn(
+            "p-1 rounded transition-colors",
+            isWatched
+              ? "text-accent-green"
+              : "text-muted-foreground opacity-0 group-hover:opacity-100"
+          )}
         >
           {isWatched ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
         </div>

@@ -27,7 +27,7 @@ export function TablesTabContent({
       className="flex-1 flex flex-col overflow-hidden"
     >
       {/* Tables Header */}
-      <div className="px-4 py-2 border-b border-border bg-secondary/30 flex items-center gap-2">
+      <div className="h-12 px-4 py-2 border-b border-border bg-secondary/30 flex items-center gap-2">
         <Table2 className="w-4 h-4 text-accent-cyan" />
         <span className="text-xs font-medium">Real Time Watching Tables</span>
       </div>

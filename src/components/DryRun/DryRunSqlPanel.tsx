@@ -22,7 +22,7 @@ export function DryRunSqlPanel({ sql, setSql, isRunning, result, onRun, isBottom
         "border-border flex flex-col"
       )}>
         {/* Header */}
-        <div className="p-3 border-b border-border flex items-center justify-between shrink-0">
+        <div className="h-12 p-3 border-b border-border flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <FlaskConical className="w-4 h-4 text-accent-cyan" />
             <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">

@@ -406,7 +406,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
       className="flex-1 flex flex-col overflow-hidden"
     >
       {/* ERD Header */}
-      <div className="px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between">
+      <div className="h-12 px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <GitBranch className="w-4 h-4 text-accent-cyan" />

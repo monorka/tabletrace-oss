@@ -7,7 +7,7 @@ import { EventLogHeaderProps } from "../../types";
 
 export function EventLogHeader({ eventCount, onClearEvents }: EventLogHeaderProps) {
   return (
-    <div className="p-3 border-b border-border flex items-center justify-between">
+    <div className="h-12 p-3 border-b border-border flex items-center justify-between">
       <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
         Event Log ({eventCount})
       </h2>

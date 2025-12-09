@@ -38,7 +38,7 @@ export function ERDSidePanel({
         isBottom ? 'w-1/2 border-r' : 'h-1/2 border-b',
         "border-border flex flex-col"
       )}>
-        <div className="p-3 border-b border-border flex items-center gap-2 shrink-0">
+        <div className="h-12 p-3 border-b border-border flex items-center gap-2 shrink-0">
           <Table2 className="w-3.5 h-3.5 text-accent-purple" />
           <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Table Details

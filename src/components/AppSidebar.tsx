@@ -1,12 +1,11 @@
 import * as React from "react";
-import { Table2, Clock, GitBranch, FlaskConical, Zap } from "lucide-react";
+import { Table2, Clock, GitBranch, FlaskConical} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -53,7 +52,7 @@ export function AppSidebar({
   return (
     <Sidebar
       collapsible="none"
-      className="!w-[calc(var(--sidebar-width-icon)_+_1px)] border-r"
+      className="w-[calc(var(--sidebar-width-icon)+1px)]! border-r"
       {...props}
     >
       <SidebarContent>

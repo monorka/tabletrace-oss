@@ -29,17 +29,17 @@ export function DryRunTabContent({
       className="flex-1 flex flex-col overflow-hidden"
     >
       {/* Dry Run Header */}
-      <div className="px-4 py-2 border-b border-[var(--border-color)] bg-[var(--bg-tertiary)]/30 flex items-center gap-2">
-        <FlaskConical className="w-4 h-4 text-[var(--accent-cyan)]" />
+      <div className="h-12 px-4 py-2 border-b border-border bg-secondary/30 flex items-center gap-2">
+        <FlaskConical className="w-4 h-4 text-accent-cyan" />
         <span className="text-xs font-medium">Dry Run Mode</span>
-        <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--accent-cyan)]/10 text-[var(--accent-cyan)]">
+        <span className="text-[10px] px-2 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan">
           Preview Only — No Changes Saved
         </span>
       </div>
 
       {/* Tables Grid with Dry Run Changes */}
       {watchedTables.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-[var(--text-secondary)]">
+        <div className="flex-1 flex items-center justify-center text-muted-foreground">
           <div className="text-center">
             <Eye className="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p className="text-lg font-medium mb-2">No tables being watched</p>
