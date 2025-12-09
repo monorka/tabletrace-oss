@@ -31,7 +31,7 @@ export function EventLogContent({ events, expandedEventIds, onToggleExpanded }: 
       className="flex-1 overflow-y-auto p-2 space-y-1"
     >
       {events.length === 0 ? (
-        <div className="text-center py-8 text-xs text-[var(--text-secondary)]">
+        <div className="text-center py-8 text-xs text-muted-foreground">
           <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <p>Waiting for changes...</p>
           <p className="mt-1 opacity-70">Watch a table to see events</p>

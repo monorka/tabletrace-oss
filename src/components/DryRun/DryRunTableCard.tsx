@@ -7,6 +7,10 @@ import { Table2, Loader2, Filter, X } from "lucide-react";
 import { DryRunTableCardProps } from "../../types";
 import { DryRunChange } from "../../lib/tauri";
 import { formatCellValue } from "../../utils";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
+import { cn } from "../../lib/utils";
 
 export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTableCardProps) {
   // Column widths state for resizing
@@ -46,8 +50,8 @@ export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTa
 
   if (!data) {
     return (
-      <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-[var(--text-secondary)]" />
+      <div className="bg-secondary border border-border rounded-lg flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -188,63 +192,76 @@ export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTa
   const changedRowCount = highlightedRows.size;
 
   return (
-    <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg overflow-hidden flex flex-col">
+    <div className="bg-secondary border border-border rounded-lg overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="px-4 py-2 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-tertiary)]">
+      <div className="px-4 py-2 border-b border-border flex items-center justify-between bg-muted">
         <div className="flex items-center gap-2">
-          <Table2 className="w-4 h-4 text-[var(--accent-cyan)]" />
+          <Table2 className="w-4 h-4 text-accent-cyan" />
           <span className="font-medium text-sm">{table}</span>
-          <span className="text-xs text-[var(--text-secondary)]">{schema}</span>
+          <span className="text-xs text-muted-foreground">{schema}</span>
           {dryRunChanges.length > 0 && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent-cyan)]/20 text-[var(--accent-cyan)]">
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 bg-accent-cyan/20 text-accent-cyan border-accent-cyan/30">
               Dry Run Preview
-            </span>
+            </Badge>
           )}
         </div>
         <div className="flex items-center gap-3">
           {changedRowCount > 0 && (
-            <button
+            <Button
               onClick={() => setShowOnlyChanged(!showOnlyChanged)}
-              className={`group flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "group flex items-center gap-1 px-1.5 py-0.5 h-auto text-[10px] font-medium",
                 showOnlyChanged
-                  ? 'bg-[var(--accent-yellow)] text-black ring-2 ring-[var(--accent-yellow)]/50'
-                  : 'bg-[var(--accent-yellow)]/20 text-[var(--accent-yellow)] hover:bg-[var(--accent-yellow)]/40'
-              }`}
+                  ? "bg-accent-yellow text-black ring-2 ring-accent-yellow/50 hover:bg-accent-yellow"
+                  : "bg-accent-yellow/20 text-accent-yellow hover:bg-accent-yellow/40"
+              )}
               title={showOnlyChanged ? "Show all rows" : "Show only changed rows"}
             >
-              <span className={`w-2 h-2 rounded-full transition-colors ${showOnlyChanged ? 'bg-black' : 'bg-[var(--accent-yellow)]'}`} />
+              <span className={cn("w-2 h-2 rounded-full transition-colors", showOnlyChanged ? "bg-black" : "bg-accent-yellow")} />
               {changedRowCount} changed
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             onClick={() => setShowFilter(!showFilter)}
-            className={`p-1 rounded transition-colors ${showFilter || filterText ? 'text-[var(--accent-purple)] bg-[var(--accent-purple)]/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "h-auto w-auto p-1",
+              showFilter || filterText ? "text-accent-purple bg-accent-purple/10" : "text-muted-foreground hover:text-foreground"
+            )}
             title="Filter rows"
           >
             <Filter className="w-3.5 h-3.5" />
-          </button>
-          <span className="text-xs text-[var(--text-secondary)]">
+          </Button>
+          <span className="text-xs text-muted-foreground">
             {showOnlyChanged || filterText ? `${filteredRows.length}/${rowCount.toLocaleString()}` : rowCount.toLocaleString()} rows
           </span>
-          {loading && <Loader2 className="w-3 h-3 animate-spin text-[var(--text-secondary)]" />}
+          {loading && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
         </div>
       </div>
 
       {/* Filter input */}
       {showFilter && (
-        <div className="px-4 py-2 border-b border-[var(--border-color)] bg-[var(--bg-primary)]">
+        <div className="px-4 py-2 border-b border-border bg-background">
           <div className="flex items-center gap-2">
-            <input
+            <Input
               type="text"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
               placeholder="col=val, col!=val, col>10, col~text"
-              className="flex-1 text-xs px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded focus:outline-none focus:border-[var(--accent-purple)]"
+              className="flex-1 text-xs h-auto px-2 py-1.5"
             />
             {filterText && (
-              <button onClick={() => setFilterText("")} className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+              <Button
+                onClick={() => setFilterText("")}
+                variant="ghost"
+                size="icon"
+                className="h-auto w-auto p-1 text-muted-foreground hover:text-foreground"
+              >
                 <X className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -253,26 +270,26 @@ export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTa
       {/* Table */}
       <div className="flex-1 overflow-auto relative">
         {columns.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-[var(--text-secondary)] text-sm">
+          <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
             Loading...
           </div>
         ) : (
           <div className="overflow-x-auto h-full">
             <table className="text-xs border-collapse" style={{ minWidth: 'max-content' }}>
-              <thead className="bg-[var(--bg-primary)] sticky top-0 z-10">
+              <thead className="bg-background sticky top-0 z-10">
                 <tr>
                   {columns.map((col) => (
                     <th
                       key={col.name}
-                      className="text-left font-medium text-[var(--text-secondary)] border-b border-r border-[var(--border-color)]/30 whitespace-nowrap relative group bg-[var(--bg-tertiary)]"
+                      className="text-left font-medium text-muted-foreground border-b border-r border-border/30 whitespace-nowrap relative group bg-muted"
                       style={{ width: getColumnWidth(col.name), minWidth: 60 }}
                     >
                       <div className="px-3 py-1.5 flex items-center gap-1">
-                        {col.is_primary_key && <span className="text-[var(--accent-purple)]">🔑</span>}
+                        {col.is_primary_key && <span className="text-accent-purple">🔑</span>}
                         <span className="truncate">{col.name}</span>
                       </div>
                       <div
-                        className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-[var(--accent-purple)]/40"
+                        className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-accent-purple/40"
                         onMouseDown={(e) => {
                           e.preventDefault();
                           setResizing({ column: col.name, startX: e.clientX, startWidth: getColumnWidth(col.name) });
@@ -300,7 +317,11 @@ export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTa
                   return (
                     <tr
                       key={rowPk}
-                      className={`border-b border-[var(--border-color)]/30 hover:bg-[var(--bg-tertiary)]/50 ${rowHighlightClass} ${isDeleted ? 'opacity-70' : ''}`}
+                      className={cn(
+                        "border-b border-border/30 hover:bg-muted/50",
+                        rowHighlightClass,
+                        isDeleted && "opacity-70"
+                      )}
                     >
                       {columns.map((col) => {
                         const isChangedColumn = isUpdated && highlight?.changedColumns.has(col.name);
@@ -310,9 +331,11 @@ export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTa
                         return (
                           <td
                             key={col.name}
-                            className={`px-3 py-1.5 border-b border-r border-[var(--border-color)]/30 cursor-pointer hover:bg-[var(--bg-tertiary)] ${
-                              isChangedColumn && !isDeleted ? 'bg-[var(--accent-yellow)]/30 text-[var(--accent-yellow)]' : ''
-                            } ${copiedCell === cellId ? 'bg-[var(--accent-green)]/20' : ''}`}
+                            className={cn(
+                              "px-3 py-1.5 border-b border-r border-border/30 cursor-pointer hover:bg-muted",
+                              isChangedColumn && !isDeleted && "bg-accent-yellow/30 text-accent-yellow",
+                              copiedCell === cellId && "bg-accent-green/20"
+                            )}
                             style={{ width: getColumnWidth(col.name), minWidth: 60, maxWidth: getColumnWidth(col.name) }}
                             onClick={() => {
                               navigator.clipboard.writeText(cellValue);
@@ -321,9 +344,9 @@ export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTa
                             }}
                             title="Click to copy"
                           >
-                            <div className={`truncate ${isDeleted ? 'line-through' : ''}`}>
+                            <div className={cn("truncate", isDeleted && "line-through")}>
                               {copiedCell === cellId ? (
-                                <span className="text-[var(--accent-green)] text-[10px]">Copied!</span>
+                                <span className="text-accent-green text-[10px]">Copied!</span>
                               ) : (
                                 formatCellValue(row[col.name])
                               )}
@@ -336,7 +359,7 @@ export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTa
                 })}
                 {allRows.length === 0 && (
                   <tr>
-                    <td colSpan={columns.length} className="px-3 py-4 text-center text-[var(--text-secondary)]">
+                    <td colSpan={columns.length} className="px-3 py-4 text-center text-muted-foreground">
                       No data
                     </td>
                   </tr>
@@ -348,15 +371,15 @@ export function DryRunTableCard({ schema, table, data, dryRunChanges }: DryRunTa
       </div>
 
       {/* Legend */}
-      <div className="px-3 py-1.5 border-t border-[var(--border-color)] flex items-center gap-3 text-[10px] text-[var(--text-secondary)]">
+      <div className="px-3 py-1.5 border-t border-border flex items-center gap-3 text-[10px] text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-sm bg-[var(--accent-green)]"></span> INSERT
+          <span className="w-2 h-2 rounded-sm bg-accent-green"></span> INSERT
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-sm bg-[var(--accent-yellow)]"></span> UPDATE
+          <span className="w-2 h-2 rounded-sm bg-accent-yellow"></span> UPDATE
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-sm bg-[var(--accent-red)]"></span> DELETE
+          <span className="w-2 h-2 rounded-sm bg-accent-red"></span> DELETE
         </span>
       </div>
     </div>

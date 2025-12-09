@@ -48,27 +48,17 @@ interface SavedConnection {
   config: PgConfig;
 }
 
-// Zod schemas
-const postgresConfigSchema = z.object({
+// Zod schema - unified for both PostgreSQL and Supabase
+const pgConfigSchema = z.object({
   host: z.string().min(1, "Host is required"),
   port: z.number().min(1).max(65535),
   user: z.string().min(1, "Username is required"),
   password: z.string(),
   database: z.string().min(1, "Database is required"),
-  use_ssl: z.boolean().optional().default(false),
+  use_ssl: z.boolean(),
 });
 
-const supabaseConfigSchema = z.object({
-  host: z.string().default("localhost"),
-  port: z.number().min(1).max(65535),
-  user: z.string().default("postgres"),
-  password: z.string().default("postgres"),
-  database: z.string().default("postgres"),
-  use_ssl: z.boolean().optional().default(false),
-});
-
-type PostgresConfigForm = z.infer<typeof postgresConfigSchema>;
-type SupabaseConfigForm = z.infer<typeof supabaseConfigSchema>;
+type PgConfigForm = z.infer<typeof pgConfigSchema>;
 
 
 // Default configs
@@ -128,10 +118,8 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<"success" | "error" | null>(null);
 
-  const form = useForm<PostgresConfigForm | SupabaseConfigForm>({
-    resolver: zodResolver(
-      activeTab === "postgres" ? postgresConfigSchema : supabaseConfigSchema
-    ) as any,
+  const form = useForm<PgConfigForm>({
+    resolver: zodResolver(pgConfigSchema),
     defaultValues: defaultPostgresConfig,
   });
 
@@ -187,13 +175,12 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
     setTimeout(() => setTestResult(null), 3000);
   };
 
-  const handleConnect = async (values: PostgresConfigForm | SupabaseConfigForm) => {
+  const handleConnect = async (values: PgConfigForm) => {
     setShowPassword(false);
-    const config = values as PgConfig;
-    await connect(config);
+    await connect(values);
     if (useConnectionStore.getState().status === "connected") {
       // Save connection on successful connect
-      saveConnection({ tab: activeTab, config });
+      saveConnection({ tab: activeTab, config: values });
       onClose();
     }
   };
@@ -276,7 +263,7 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
                     <>
                       {/* Port Only */}
                       <FormField
-                        control={form.control as any}
+                        control={form.control}
                         name="port"
                         render={({ field }) => (
                           <FormItem>
@@ -312,7 +299,7 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
                       {/* Host & Port */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <FormField
-                          control={form.control as any}
+                          control={form.control}
                           name="host"
                           render={({ field }) => (
                             <FormItem className="sm:col-span-2">
@@ -324,7 +311,7 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
                           )}
                         />
                         <FormField
-                          control={form.control as any}
+                          control={form.control}
                           name="port"
                           render={({ field }) => (
                             <FormItem>
@@ -344,7 +331,7 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
 
                       {/* Database */}
                       <FormField
-                        control={form.control as any}
+                        control={form.control}
                         name="database"
                         render={({ field }) => (
                           <FormItem>
@@ -358,7 +345,7 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
 
                       {/* User */}
                       <FormField
-                        control={form.control as any}
+                        control={form.control}
                         name="user"
                         render={({ field }) => (
                           <FormItem>
@@ -372,7 +359,7 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
 
                       {/* Password */}
                       <FormField
-                        control={form.control as any}
+                        control={form.control}
                         name="password"
                         render={({ field }) => (
                           <FormItem>
@@ -400,7 +387,7 @@ export function ConnectionDialog({ isOpen, onClose }: ConnectionDialogProps) {
 
                       {/* SSL Toggle */}
                       <FormField
-                        control={form.control as any}
+                        control={form.control}
                         name="use_ssl"
                         render={({ field }) => (
                           <FormItem>

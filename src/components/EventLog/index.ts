@@ -5,6 +5,8 @@
 export { DiffViewer } from "./DiffViewer";
 export { EventLogItem } from "./EventLogItem";
 export { EventLogContent } from "./EventLogContent";
+export { EventLogHeader } from "./EventLogHeader";
+export { EventLogPanel } from "./EventLogPanel";
 
 
 

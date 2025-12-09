@@ -12,7 +12,7 @@ export function StatusBar({
   totalTableCount,
 }: StatusBarProps) {
   return (
-    <footer className="h-6 border-t border-[var(--border-color)] bg-[var(--bg-secondary)] flex items-center px-3 text-[10px] text-[var(--text-secondary)] gap-4 no-select">
+    <footer className="h-6 border-t border-border bg-secondary flex items-center px-3 text-[10px] text-muted-foreground gap-4 no-select">
       <div className="flex items-center gap-1.5">
         <Activity className="w-3 h-3" />
         <span>{eventCount} events</span>
@@ -26,7 +26,7 @@ export function StatusBar({
         <span>{totalTableCount} tables available</span>
       </div>
       <div className="flex-1" />
-      <span className="text-[var(--accent-green)]">● Polling Mode</span>
+      <span className="text-accent-green">● Polling Mode</span>
     </footer>
   );
 }

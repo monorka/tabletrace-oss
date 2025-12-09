@@ -19,6 +19,8 @@ import { tauriCommands } from "../../lib/tauri";
 import { ERDViewProps, TableNodeData, NODE_WIDTH } from "../../types";
 import { TableNode } from "./TableNode";
 import { CardinalityEdge } from "./CardinalityEdge";
+import { Button } from "../ui/button";
+import { cn } from "../../lib/utils";
 
 const nodeTypes = { tableNode: TableNode };
 const edgeTypes = { cardinality: CardinalityEdge };
@@ -371,8 +373,8 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         className="flex-1 flex items-center justify-center"
       >
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-[var(--accent-purple)]" />
-          <p className="text-sm text-[var(--text-secondary)]">Loading schema...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-accent-purple" />
+          <p className="text-sm text-muted-foreground">Loading schema...</p>
         </div>
       </motion.div>
     );
@@ -384,7 +386,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         key="erd-empty"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex-1 flex items-center justify-center text-[var(--text-secondary)]"
+        className="flex-1 flex items-center justify-center text-muted-foreground"
       >
         <div className="text-center">
           <GitBranch className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -404,35 +406,36 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
       className="flex-1 flex flex-col overflow-hidden"
     >
       {/* ERD Header */}
-      <div className="px-4 py-2 border-b border-[var(--border-color)] bg-[var(--bg-tertiary)]/30 flex items-center justify-between">
+      <div className="px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <GitBranch className="w-4 h-4 text-[var(--accent-cyan)]" />
+            <GitBranch className="w-4 h-4 text-accent-cyan" />
             <span className="text-xs font-medium">ER Diagram</span>
           </div>
 
           {/* Schema Selector - Button Style */}
-          <div className="flex items-center gap-1 bg-[var(--bg-secondary)] rounded-lg p-0.5 border border-[var(--border-color)]">
+          <div className="flex items-center gap-1 bg-secondary rounded-lg p-0.5 border border-border">
             {schemas.map(schema => (
-              <button
+              <Button
                 key={schema}
                 onClick={() => setSelectedSchema(schema)}
-                className={`px-2.5 py-1 text-[10px] font-medium rounded-md transition-all ${
-                  selectedSchema === schema
-                    ? 'bg-[var(--accent-purple)] text-white'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'
-                }`}
+                variant={selectedSchema === schema ? "default" : "ghost"}
+                size="sm"
+                className={cn(
+                  "px-2.5 py-1 text-[10px] font-medium rounded-md h-auto",
+                  selectedSchema === schema && "bg-accent-purple text-white hover:bg-accent-purple/90"
+                )}
               >
                 {schema}
-              </button>
+              </Button>
             ))}
           </div>
 
-          <span className="text-[10px] text-[var(--text-secondary)]">
+          <span className="text-[10px] text-muted-foreground">
             {filteredTables.length - isolatedCount} connected · {isolatedCount} isolated · {filteredForeignKeys.length} FK
           </span>
         </div>
-        <div className="flex items-center gap-1 text-[10px] text-[var(--text-secondary)]">
+        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <span>Drag to move</span>
           <span className="mx-1">·</span>
           <span>Scroll to zoom</span>
@@ -443,10 +446,10 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
       <div className="flex-1 flex overflow-hidden">
         {/* Isolated Tables Panel (Left) - scrollable list */}
         {isolatedTablesList.length > 0 && (
-          <div className="w-56 border-r border-[var(--border-color)] bg-[var(--bg-tertiary)]/30 flex flex-col">
-            <div className="px-3 py-2 border-b border-[var(--border-color)] flex items-center gap-2 flex-shrink-0">
-              <Table2 className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
-              <span className="text-[10px] font-medium text-[var(--text-secondary)]">
+          <div className="w-56 border-r border-border bg-muted/30 flex flex-col">
+            <div className="px-3 py-2 border-b border-border flex items-center gap-2 shrink-0">
+              <Table2 className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-[10px] font-medium text-muted-foreground">
                 Isolated ({isolatedTablesList.length})
               </span>
             </div>
@@ -454,14 +457,14 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
               {isolatedTablesList.map((table) => (
                 <div
                   key={table.fullName}
-                  className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg"
+                  className="bg-secondary border border-border rounded-lg"
                 >
                   {/* Table Header */}
-                  <div className="px-2.5 py-1.5 border-b border-[var(--border-color)] flex items-center gap-1.5 bg-[var(--bg-tertiary)]">
-                    <Table2 className="w-3 h-3 flex-shrink-0 text-[var(--text-secondary)]" />
+                  <div className="px-2.5 py-1.5 border-b border-border flex items-center gap-1.5 bg-muted">
+                    <Table2 className="w-3 h-3 shrink-0 text-muted-foreground" />
                     <span className="text-[10px] font-medium truncate flex-1">{table.table}</span>
                     {table.isWatched && (
-                      <Eye className="w-2.5 h-2.5 text-[var(--accent-green)] flex-shrink-0" />
+                      <Eye className="w-2.5 h-2.5 text-accent-green shrink-0" />
                     )}
                   </div>
                   {/* Columns - show all, no scroll */}
@@ -469,17 +472,20 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
                     {table.columns.map((col, idx) => (
                       <div
                         key={idx}
-                        className="px-2.5 py-0.5 text-[9px] flex items-center gap-1 border-b border-[var(--border-color)]/20 last:border-b-0"
+                        className="px-2.5 py-0.5 text-[9px] flex items-center gap-1 border-b border-border/20 last:border-b-0"
                       >
                         {col.isPrimaryKey ? (
-                          <Key className="w-2 h-2 text-[var(--accent-yellow)] flex-shrink-0" />
+                          <Key className="w-2 h-2 text-accent-yellow shrink-0" />
                         ) : (
-                          <span className="w-2 h-2 flex-shrink-0 text-[var(--text-secondary)]">◇</span>
+                          <span className="w-2 h-2 shrink-0 text-muted-foreground">◇</span>
                         )}
-                        <span className={`truncate flex-1 ${col.isPrimaryKey ? 'text-[var(--accent-yellow)]' : 'text-[var(--text-primary)]'}`}>
+                        <span className={cn(
+                          "truncate flex-1",
+                          col.isPrimaryKey ? "text-accent-yellow" : "text-foreground"
+                        )}>
                           {col.name}
                         </span>
-                        <span className="text-[var(--text-secondary)] text-[8px] opacity-60">{col.type}</span>
+                        <span className="text-muted-foreground text-[8px] opacity-60">{col.type}</span>
                       </div>
                     ))}
                   </div>
@@ -506,7 +512,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
             maxZoom={2}
             proOptions={{ hideAttribution: true }}
           >
-            <Background color="var(--border-color)" gap={20} size={1} />
+            <Background color="var(--border)" gap={20} size={1} />
           </ReactFlow>
         </div>
       </div>

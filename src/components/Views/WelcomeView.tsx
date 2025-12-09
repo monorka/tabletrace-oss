@@ -19,7 +19,7 @@ export function WelcomeView({ onConnect, isConnecting }: WelcomeViewProps) {
         className="text-center max-w-md px-6"
       >
         <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center">
-          <Zap className="w-8 h-8 text-primary-foreground" />
+          <Zap className="w-8 h-8 text-white" />
         </div>
 
         <h1 className="text-2xl font-bold mb-2">Welcome to TableTrace</h1>

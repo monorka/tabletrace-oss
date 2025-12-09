@@ -39,7 +39,7 @@ export function EventLogItem({
 
   return (
     <div
-      className="rounded-md hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer"
+      className="rounded-md hover:bg-secondary transition-colors cursor-pointer"
       onClick={() => onToggleExpanded(eventId)}
     >
       <div className="px-2 py-1.5 flex items-center gap-2">
@@ -47,11 +47,11 @@ export function EventLogItem({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium truncate">{table}</span>
-            <span className="text-[10px] text-[var(--text-secondary)]">{time}</span>
+            <span className="text-[10px] text-muted-foreground">{time}</span>
           </div>
         </div>
         {type === "UPDATE" && changeCount > 0 && (
-          <span className="text-[9px] px-1 py-0.5 rounded bg-[var(--accent-yellow)]/20 text-[var(--accent-yellow)]">
+          <span className="text-[9px] px-1 py-0.5 rounded bg-accent-yellow/20 text-accent-yellow">
             {changeCount} changed
           </span>
         )}
@@ -59,7 +59,7 @@ export function EventLogItem({
           animate={{ rotate: expanded ? 90 : 0 }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronRight className="w-3 h-3 text-[var(--text-secondary)]" />
+          <ChevronRight className="w-3 h-3 text-muted-foreground" />
         </motion.div>
       </div>
 
@@ -82,8 +82,8 @@ export function EventLogItem({
                   }}
                   className={`text-[9px] px-1.5 py-0.5 rounded transition-colors ${
                     showOnlyChanges
-                      ? 'bg-[var(--accent-purple)]/20 text-[var(--accent-purple)]'
-                      : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'
+                      ? 'bg-accent-purple/20 text-accent-purple'
+                      : 'bg-secondary text-muted-foreground'
                   }`}
                 >
                   {showOnlyChanges ? "Changed only" : "All columns"}

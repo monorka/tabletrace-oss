@@ -8,6 +8,7 @@ import { AppHeader } from "./components/AppHeader/AppHeader";
 import { ConnectionErrorBanner } from "./components/ConnectionErrorBanner";
 import { AppSidebar } from "./components/AppSidebar";
 import { StatusBar } from "./components/StatusBar";
+import { SidebarInset, SidebarProvider } from "./components/ui/sidebar";
 import {
   TabType,
   EventLogPosition,
@@ -125,26 +126,26 @@ function App() {
         )}
       </AnimatePresence>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - Only show when connected */}
-        {status === "connected" && (
+      {status === "connected" ? (
+        <SidebarProvider
+          style={{
+            "--sidebar-width": "350px",
+            "--sidebar-width-icon": "48px",
+          } as React.CSSProperties}
+          className="flex-1 min-h-0"
+        >
           <AppSidebar
             activeTab={activeTab}
             layoutSettings={layoutSettings}
             onTabChange={setActiveTab}
             onToggleTableList={toggleTableList}
           />
-        )}
-
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col overflow-hidden">
-          {status === "connected" ? (
+          <SidebarInset className="flex flex-col overflow-hidden">
             <ConnectedView
               activeTab={activeTab}
               tables={tables}
               foreignKeys={foreignKeys}
               watchedTables={watchedTables}
-              watchedTableData={watchedTableData}
               events={events}
               tablesWithChanges={tablesWithChanges}
               onRefreshTables={refreshTables}
@@ -152,23 +153,22 @@ function App() {
               onStopWatch={stopWatching}
               onSelectTable={selectTable}
               selectedTable={selectedTable}
-              selectedTableColumns={selectedTableColumns}
-              selectedTableRows={selectedTableRows}
-              selectedTableRowCount={selectedTableRowCount}
               getChangesForTable={getChangesForTable}
               getWatchedTableData={getWatchedTableData}
               onClearEvents={clearEvents}
               layoutSettings={layoutSettings}
               onStopAllWatch={stopAllWatch}
             />
-          ) : (
-            <WelcomeView
-              onConnect={() => setShowConnectionDialog(true)}
-              isConnecting={status === "connecting"}
-            />
-          )}
+          </SidebarInset>
+        </SidebarProvider>
+      ) : (
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <WelcomeView
+            onConnect={() => setShowConnectionDialog(true)}
+            isConnecting={status === "connecting"}
+          />
         </main>
-      </div>
+      )}
 
       {/* Status Bar */}
       <StatusBar
