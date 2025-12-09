@@ -53,8 +53,8 @@ export function WatchedTableCardTable({
 
   return (
     <div className="h-full">
-      <Table className="text-xs w-auto bg-background" style={{ minWidth: 'max-content' }}>
-        <TableHeader className="sticky top-0 z-10">
+      <Table className="text-xs w-auto bg-background border-muted-foreground" style={{ minWidth: 'max-content' }}>
+        <TableHeader className="sticky top-0 z-10 bg-secondary">
           <TableRow>
             {columns.map((col) => (
               <TableHead
