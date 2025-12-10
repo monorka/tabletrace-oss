@@ -10,6 +10,10 @@ This allows us to:
 - Keep the open source version under AGPL-3.0
 - Use contributions in commercial products
 
+### How to Sign
+
+When you open a PR, the CLA Assistant bot will comment with a link. Click the link and authorize with GitHub to sign. The check will pass automatically after signing.
+
 ## How to Contribute
 
 ### Reporting Bugs
