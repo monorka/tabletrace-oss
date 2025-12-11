@@ -117,14 +117,14 @@ export function CardinalityEdge({
             width="40"
             height="16"
             rx="3"
-            fill="var(--bg-secondary)"
-            fillOpacity="0.9"
+            fill="var(--secondary)"
+            fillOpacity="0.95"
           />
           <text
             x="0"
             y="4"
             textAnchor="middle"
-            fill="var(--text-secondary)"
+            fill="var(--foreground)"
             fontSize="9"
             fontWeight="500"
           >
