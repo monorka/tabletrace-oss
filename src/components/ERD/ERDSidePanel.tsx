@@ -3,7 +3,7 @@
  * Resizable panel showing hovered/clicked table information
  */
 
-import { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { Table2, MousePointer2, Key, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import { ERDHoveredTable } from "../../types";
 import { cn } from "../../lib/utils";

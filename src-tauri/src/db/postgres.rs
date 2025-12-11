@@ -410,11 +410,17 @@ impl PostgresConnection {
 
         // Safety check: reject SQL containing transaction control statements
         let sql_upper = sql.to_uppercase();
-        if sql_upper.contains("COMMIT") || sql_upper.contains("BEGIN") || sql_upper.contains("ROLLBACK") {
+        if sql_upper.contains("COMMIT")
+            || sql_upper.contains("BEGIN")
+            || sql_upper.contains("ROLLBACK")
+        {
             return Ok(DryRunResult {
                 success: false,
                 changes: vec![],
-                error: Some("SQL cannot contain COMMIT, BEGIN, or ROLLBACK statements in dry run mode".to_string()),
+                error: Some(
+                    "SQL cannot contain COMMIT, BEGIN, or ROLLBACK statements in dry run mode"
+                        .to_string(),
+                ),
                 rows_affected: 0,
             });
         }

@@ -4,7 +4,7 @@
  * Features: resizable width, collapsible, horizontal scroll in content
  */
 
-import { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { EventLogPanelProps } from "../../types";
