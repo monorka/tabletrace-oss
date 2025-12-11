@@ -68,10 +68,10 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
       className={`relative flex gap-4 ${isInGroup ? "ml-6" : ""}`}
     >
       {/* Timeline dot */}
-      <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-        event.type === "INSERT" ? "bg-[var(--accent-green)]/20 text-[var(--accent-green)]" :
-        event.type === "UPDATE" ? "bg-[var(--accent-yellow)]/20 text-[var(--accent-yellow)]" :
-        "bg-[var(--accent-red)]/20 text-[var(--accent-red)]"
+      <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+        event.type === "INSERT" ? "bg-accent-green/20 text-accent-green" :
+        event.type === "UPDATE" ? "bg-accent-yellow/20 text-accent-yellow" :
+        "bg-accent-red/20 text-accent-red"
       }`}>
         {event.type === "INSERT" ? (
           <Plus className="w-4 h-4" />
@@ -83,35 +83,35 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
       </div>
 
       {/* Event card */}
-      <div className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg p-3 min-w-0">
+      <div className="flex-1 bg-secondary border border-border rounded-lg p-3 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 min-w-0">
             <span className={`text-xs font-medium px-2 py-0.5 rounded uppercase ${
-              event.type === "INSERT" ? "bg-[var(--accent-green)]/20 text-[var(--accent-green)]" :
-              event.type === "UPDATE" ? "bg-[var(--accent-yellow)]/20 text-[var(--accent-yellow)]" :
-              "bg-[var(--accent-red)]/20 text-[var(--accent-red)]"
+              event.type === "INSERT" ? "bg-accent-green/20 text-accent-green" :
+              event.type === "UPDATE" ? "bg-accent-yellow/20 text-accent-yellow" :
+              "bg-accent-red/20 text-accent-red"
             }`}>
               {event.type}
             </span>
             <span className="text-sm font-medium truncate">{event.table}</span>
           </div>
-          <span className="text-[10px] text-[var(--text-secondary)] flex-shrink-0">
+          <span className="text-[10px] text-muted-foreground shrink-0">
             {new Date(event.timestamp).toLocaleTimeString()}
           </span>
         </div>
 
         {/* Event details */}
-        <div className="text-xs font-mono bg-[var(--bg-primary)] rounded p-2 overflow-x-auto">
+        <div className="text-xs font-mono bg-card rounded p-2 overflow-x-auto">
           {event.type === "UPDATE" && event.before && event.after ? (
             <div className="space-y-1">
               {Object.keys(event.after).filter(key =>
                 JSON.stringify(event.before?.[key]) !== JSON.stringify(event.after?.[key])
               ).slice(0, 5).map((key) => (
                 <div key={key} className="flex gap-2">
-                  <span className="text-[var(--text-secondary)]">{key}:</span>
-                  <span className="text-[var(--accent-red)] line-through">{String(event.before?.[key] ?? "null")}</span>
-                  <span className="text-[var(--text-secondary)]">→</span>
-                  <span className="text-[var(--accent-green)]">{String(event.after?.[key] ?? "null")}</span>
+                  <span className="text-muted-foreground">{key}:</span>
+                  <span className="text-accent-red line-through">{String(event.before?.[key] ?? "null")}</span>
+                  <span className="text-muted-foreground">→</span>
+                  <span className="text-accent-green">{String(event.after?.[key] ?? "null")}</span>
                 </div>
               ))}
             </div>
@@ -121,12 +121,12 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
               {JSON.stringify(event.after).length > 200 && "..."}
             </div>
           ) : event.before ? (
-            <div className="truncate text-[var(--accent-red)]">
+            <div className="truncate text-accent-red">
               {JSON.stringify(event.before).substring(0, 200)}
               {JSON.stringify(event.before).length > 200 && "..."}
             </div>
           ) : (
-            <span className="text-[var(--text-secondary)]">No details</span>
+            <span className="text-muted-foreground">No details</span>
           )}
         </div>
       </div>
@@ -152,36 +152,36 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
           onClick={() => toggleGroup(group.id)}
         >
           {/* Group icon */}
-          <div className="relative z-10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-[var(--accent-purple)]/20 text-[var(--accent-purple)]">
+          <div className="relative z-10 w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-accent-purple/20 text-accent-purple">
             <Link2 className="w-4 h-4" />
           </div>
 
           {/* Group card */}
-          <div className="flex-1 bg-[var(--accent-purple)]/10 border border-[var(--accent-purple)]/30 rounded-lg p-3 min-w-0">
+          <div className="flex-1 bg-accent-purple/10 border border-accent-purple/30 rounded-lg p-3 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                <span className="text-xs font-medium px-2 py-0.5 rounded bg-[var(--accent-purple)]/20 text-[var(--accent-purple)]">
+                <span className="text-xs font-medium px-2 py-0.5 rounded bg-accent-purple/20 text-accent-purple">
                   {group.events.length} Related Changes
                 </span>
-                <span className="text-[10px] text-[var(--text-secondary)] px-1.5 py-0.5 rounded bg-[var(--bg-tertiary)]">
+                <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 rounded bg-secondary">
                   {formatCorrelationMethod(group.correlationMethod)}
                 </span>
                 <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                  group.confidence >= 0.8 ? "bg-[var(--accent-green)]/20 text-[var(--accent-green)]" :
-                  group.confidence >= 0.6 ? "bg-[var(--accent-yellow)]/20 text-[var(--accent-yellow)]" :
-                  "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
+                  group.confidence >= 0.8 ? "bg-accent-green/20 text-accent-green" :
+                  group.confidence >= 0.6 ? "bg-accent-yellow/20 text-accent-yellow" :
+                  "bg-secondary text-muted-foreground"
                 }`}>
                   {formatConfidence(group.confidence)}
                 </span>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-[10px] text-[var(--text-secondary)]">
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-[10px] text-muted-foreground">
                   {new Date(group.timestamp).toLocaleTimeString()}
                 </span>
                 {isExpanded ? (
-                  <ChevronUp className="w-4 h-4 text-[var(--text-secondary)]" />
+                  <ChevronUp className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-[var(--text-secondary)]" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 )}
               </div>
             </div>
@@ -189,7 +189,7 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
             {/* Tables involved */}
             <div className="flex flex-wrap gap-1 mt-2">
               {tables.map(table => (
-                <span key={table} className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-primary)] text-[var(--text-secondary)]">
+                <span key={table} className="text-[10px] px-1.5 py-0.5 rounded bg-card text-muted-foreground">
                   {table}
                 </span>
               ))}
@@ -199,7 +199,7 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
 
         {/* Expanded events */}
         {isExpanded && (
-          <div className="mt-3 space-y-3 border-l-2 border-[var(--accent-purple)]/30 ml-5 pl-4">
+          <div className="mt-3 space-y-3 border-l-2 border-accent-purple/30 ml-5 pl-4">
             {group.events.map((event, i) => renderEvent(event, i, true))}
           </div>
         )}
@@ -216,28 +216,28 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
       className="flex-1 flex flex-col overflow-hidden"
     >
       {/* Timeline Header */}
-      <div className="px-4 py-2 border-b border-[var(--border-color)] bg-[var(--bg-tertiary)]/30 flex items-center justify-between">
+      <div className="h-12 px-4 py-2 border-b border-border bg-secondary/30 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-[var(--accent-cyan)]" />
+          <Clock className="w-4 h-4 text-accent-cyan" />
           <span className="text-xs font-medium">Change Event Timeline</span>
-          <span className="text-[10px] text-[var(--text-secondary)] px-2 py-0.5 rounded-full bg-[var(--bg-tertiary)]">
+          <span className="text-[10px] text-muted-foreground px-2 py-0.5 rounded-full bg-secondary">
             {events.length} events
           </span>
           {correlatedGroups.length > 0 && (
-            <span className="text-[10px] text-[var(--accent-purple)] px-2 py-0.5 rounded-full bg-[var(--accent-purple)]/10">
+            <span className="text-[10px] text-accent-purple px-2 py-0.5 rounded-full bg-accent-purple/10">
               {correlatedGroups.length} groups
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           {/* View mode toggle */}
-          <div className="flex items-center gap-1 bg-[var(--bg-tertiary)] rounded-lg p-0.5">
+          <div className="flex items-center gap-1 bg-secondary rounded-lg p-0.5">
             <button
               onClick={() => setViewMode("grouped")}
               className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
                 viewMode === "grouped"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  ? "bg-accent-purple text-white"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Grouped
@@ -246,8 +246,8 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
               onClick={() => setViewMode("all")}
               className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
                 viewMode === "all"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  ? "bg-accent-purple text-white"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               All
@@ -257,7 +257,7 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
           {events.length > 0 && (
             <button
               onClick={onClearEvents}
-              className="text-xs text-[var(--text-secondary)] hover:text-[var(--accent-red)] transition-colors"
+              className="text-xs text-muted-foreground hover:text-accent-red transition-colors"
             >
               Clear All
             </button>
@@ -268,7 +268,7 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
       {/* Timeline Content */}
       <div className="flex-1 overflow-y-auto">
         {events.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center h-full text-[var(--text-secondary)]">
+          <div className="flex-1 flex items-center justify-center h-full text-muted-foreground">
             <div className="text-center py-12">
               <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p className="text-sm mb-2">No events yet</p>
@@ -279,7 +279,7 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
           // All events view (oldest first)
           <div className="p-4">
             <div className="relative">
-              <div className="absolute left-[19px] top-0 bottom-0 w-px bg-[var(--border-color)]" />
+              <div className="absolute left-[19px] top-0 bottom-0 w-px bg-border" />
               <div className="space-y-4">
                 {[...events].reverse().map((event, index) => renderEvent(event, index))}
               </div>
@@ -289,7 +289,7 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
           // Grouped view (oldest first, merged timeline)
           <div className="p-4">
             <div className="relative">
-              <div className="absolute left-[19px] top-0 bottom-0 w-px bg-[var(--border-color)]" />
+              <div className="absolute left-[19px] top-0 bottom-0 w-px bg-border" />
               <div className="space-y-4">
                 {sortedTimelineItems.map((item, index) =>
                   item.type === 'group'
@@ -299,7 +299,7 @@ export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
 
                 {/* No groups message */}
                 {correlatedGroups.length === 0 && ungroupedEvents.length > 0 && (
-                  <div className="text-center py-4 text-xs text-[var(--text-secondary)]">
+                  <div className="text-center py-4 text-xs text-muted-foreground">
                     No correlated events detected yet
                   </div>
                 )}

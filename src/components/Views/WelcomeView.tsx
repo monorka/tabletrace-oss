@@ -18,12 +18,12 @@ export function WelcomeView({ onConnect, isConnecting }: WelcomeViewProps) {
         animate={{ opacity: 1, y: 0 }}
         className="text-center max-w-md px-6"
       >
-        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[var(--accent-purple)] to-[var(--accent-blue)] flex items-center justify-center">
+        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center">
           <Zap className="w-8 h-8 text-white" />
         </div>
 
         <h1 className="text-2xl font-bold mb-2">Welcome to TableTrace</h1>
-        <p className="text-[var(--text-secondary)] text-sm mb-8 leading-relaxed">
+        <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
           Real-time visualization of database changes across multiple tables.
           Connect to PostgreSQL or Supabase to get started.
         </p>
@@ -33,7 +33,7 @@ export function WelcomeView({ onConnect, isConnecting }: WelcomeViewProps) {
           disabled={isConnecting}
           className="
             w-full px-4 py-3 rounded-lg font-medium text-sm
-            bg-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/80
+            bg-accent-purple hover:bg-accent-purple/80 text-white
             disabled:opacity-50 disabled:cursor-not-allowed
             transition-all duration-200
             flex items-center justify-center gap-2

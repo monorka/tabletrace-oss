@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Download, X, RefreshCw } from "lucide-react";
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
+import { Button } from "./ui/button";
 
 interface UpdateInfo {
   version: string;
@@ -85,30 +86,31 @@ export function UpdateChecker() {
         exit={{ opacity: 0, y: -20 }}
         className="fixed top-4 right-4 z-50 max-w-sm"
       >
-        <div className="bg-[var(--bg-secondary)] border border-[var(--accent-green)]/30 rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-card border border-accent-green/30 rounded-lg shadow-lg overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-[var(--accent-green)]/10 border-b border-[var(--accent-green)]/20">
+          <div className="flex items-center justify-between px-4 py-3 bg-accent-green/10 border-b border-accent-green/20">
             <div className="flex items-center gap-2">
-              <Download className="w-4 h-4 text-[var(--accent-green)]" />
-              <span className="text-sm font-medium text-[var(--accent-green)]">
+              <Download className="w-4 h-4 text-accent-green" />
+              <span className="text-sm font-medium text-accent-green">
                 Update Available
               </span>
             </div>
-            <button
+            <Button
               onClick={() => setDismissed(true)}
-              className="p-1 rounded hover:bg-[var(--bg-tertiary)] transition-colors"
+              variant="ghost"
+              size="icon-sm"
             >
-              <X className="w-4 h-4 text-[var(--text-secondary)]" />
-            </button>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
 
           {/* Content */}
           <div className="p-4">
-            <p className="text-sm text-[var(--text-primary)] mb-1">
+            <p className="text-sm text-foreground mb-1">
               Version <span className="font-mono font-medium">{updateAvailable.version}</span> is available
             </p>
             {updateAvailable.body && (
-              <p className="text-xs text-[var(--text-secondary)] mb-3 line-clamp-2">
+              <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
                 {updateAvailable.body}
               </p>
             )}
@@ -116,21 +118,21 @@ export function UpdateChecker() {
             {/* Progress bar */}
             {isDownloading && (
               <div className="mb-3">
-                <div className="h-1.5 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-[var(--accent-green)]"
+                    className="h-full bg-accent-green"
                     initial={{ width: 0 }}
                     animate={{ width: `${downloadProgress}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-[var(--text-secondary)] mt-1">
+                <p className="text-[10px] text-muted-foreground mt-1">
                   Downloading... {Math.round(downloadProgress)}%
                 </p>
               </div>
             )}
 
             {isInstalling && (
-              <div className="flex items-center gap-2 text-xs text-[var(--accent-green)] mb-3">
+              <div className="flex items-center gap-2 text-xs text-accent-green mb-3">
                 <RefreshCw className="w-3 h-3 animate-spin" />
                 Installing and restarting...
               </div>
@@ -139,18 +141,20 @@ export function UpdateChecker() {
             {/* Actions */}
             {!isDownloading && !isInstalling && (
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   onClick={handleDownloadAndInstall}
-                  className="flex-1 px-3 py-1.5 text-xs font-medium rounded-md bg-[var(--accent-green)] text-white hover:bg-[var(--accent-green)]/90 transition-colors"
+                  className="flex-1 bg-accent-green hover:bg-accent-green/90 text-white"
+                  size="sm"
                 >
                   Update Now
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setDismissed(true)}
-                  className="px-3 py-1.5 text-xs font-medium rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                  variant="ghost"
+                  size="sm"
                 >
                   Later
-                </button>
+                </Button>
               </div>
             )}
           </div>

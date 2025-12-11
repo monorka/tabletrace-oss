@@ -2,7 +2,7 @@
  * Shared type definitions for TableTrace
  */
 
-import { TableChange, ColumnInfo, DryRunResult, DryRunChange, ForeignKeyInfo, TableInfo } from "../lib/tauri";
+import { TableChange, DryRunResult, DryRunChange, ForeignKeyInfo, TableInfo } from "../lib/tauri";
 import { WatchedTableData, TableChangeInfo } from "../stores/connectionStore";
 
 // ============================================
@@ -17,8 +17,11 @@ export interface LayoutSettings {
   eventLogPosition: EventLogPosition;
 }
 
+export type Theme = "light" | "dark" | "system";
+
 export interface AppSettings {
   maxDisplayRows: number;
+  theme: Theme;
 }
 
 export const defaultLayoutSettings: LayoutSettings = {
@@ -28,6 +31,7 @@ export const defaultLayoutSettings: LayoutSettings = {
 
 export const defaultAppSettings: AppSettings = {
   maxDisplayRows: 1000,
+  theme: "system",
 };
 
 // ============================================
@@ -48,7 +52,6 @@ export interface ConnectedViewProps {
   tables: TableInfo[];
   foreignKeys: ForeignKeyInfo[];
   watchedTables: string[];
-  watchedTableData: Map<string, WatchedTableData>;
   events: TableChange[];
   tablesWithChanges: TableChangeInfo[];
   onRefreshTables: () => void;
@@ -56,9 +59,6 @@ export interface ConnectedViewProps {
   onStopWatch: (schema: string, table: string) => Promise<void>;
   onSelectTable: (schema: string, table: string) => void;
   selectedTable?: { schema: string; table: string };
-  selectedTableColumns: ColumnInfo[];
-  selectedTableRows: Record<string, unknown>[];
-  selectedTableRowCount: number;
   getChangesForTable: (schema: string, table: string) => TableChange[];
   getWatchedTableData: (fullName: string) => WatchedTableData | undefined;
   onClearEvents: () => void;
@@ -141,6 +141,19 @@ export interface EventLogContentProps {
   events: TableChange[];
   expandedEventIds: Set<string>;
   onToggleExpanded: (eventId: string) => void;
+}
+
+export interface EventLogHeaderProps {
+  eventCount: number;
+  onClearEvents: () => void;
+}
+
+export interface EventLogPanelProps {
+  events: TableChange[];
+  onClearEvents: () => void;
+  isBottom?: boolean;
+  expandedEventIds?: Set<string>;
+  onToggleExpanded?: (id: string) => void;
 }
 
 export interface SettingsDialogProps {
