@@ -100,6 +100,8 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
 
   // Track selected/hovered node for edge highlighting
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  // Track pinned node (clicked to keep details visible)
+  const [pinnedNode, setPinnedNode] = useState<string | null>(null);
 
   // Use Dagre for hierarchical layout (like Liam ERD)
   // Left-to-Right: tables that reference others → referenced tables
@@ -326,11 +328,30 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
 
   // Handle node hover
   const onNodeMouseEnter = useCallback((_: React.MouseEvent, node: Node) => {
+    // If hovering a different node, clear pinned state
+    if (pinnedNode && node.id !== pinnedNode) {
+      setPinnedNode(null);
+    }
+    setHoveredNode(node.id);
+  }, [pinnedNode]);
+
+  const onNodeMouseLeave = useCallback(() => {
+    // Only clear if not pinned
+    if (!pinnedNode) {
+      setHoveredNode(null);
+    }
+  }, [pinnedNode]);
+
+  // Handle node click - pin the node
+  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+    setPinnedNode(node.id);
     setHoveredNode(node.id);
   }, []);
 
-  const onNodeMouseLeave = useCallback(() => {
-    setHoveredNode(null);
+  // Handle node drag start - also pin the node
+  const onNodeDragStart = useCallback((_: React.MouseEvent, node: Node) => {
+    setPinnedNode(node.id);
+    setHoveredNode(node.id);
   }, []);
 
   // Notify parent of hovered table changes
@@ -406,15 +427,15 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
       className="flex-1 flex flex-col overflow-hidden"
     >
       {/* ERD Header */}
-      <div className="h-12 px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+      <div className="h-12 px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="flex items-center gap-2 shrink-0">
             <GitBranch className="w-4 h-4 text-accent-cyan" />
-            <span className="text-xs font-medium">ER Diagram</span>
+            <span className="text-xs font-medium">ERD</span>
           </div>
 
           {/* Schema Selector - Button Style */}
-          <div className="flex items-center gap-1 bg-secondary rounded-lg p-0.5 border border-border">
+          <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-0.5 border border-border shrink-0">
             {schemas.map(schema => (
               <Button
                 key={schema}
@@ -422,7 +443,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
                 variant={selectedSchema === schema ? "default" : "ghost"}
                 size="sm"
                 className={cn(
-                  "px-2.5 py-1 text-[10px] font-medium rounded-md h-auto",
+                  "px-2 py-0.5 text-[10px] font-medium rounded h-auto",
                   selectedSchema === schema && "bg-accent-purple text-white hover:bg-accent-purple/90"
                 )}
               >
@@ -431,13 +452,11 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
             ))}
           </div>
 
-          <span className="text-[10px] text-muted-foreground">
-            {filteredTables.length - isolatedCount} connected · {isolatedCount} isolated · {filteredForeignKeys.length} FK
+          <span className="text-[10px] text-muted-foreground truncate">
+            {filteredTables.length - isolatedCount} tables · {filteredForeignKeys.length} relations
           </span>
         </div>
-        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-          <span>Drag to move</span>
-          <span className="mx-1">·</span>
+        <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0">
           <span>Scroll to zoom</span>
         </div>
       </div>
@@ -504,6 +523,8 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
             onEdgesChange={onEdgesChange}
             onNodeMouseEnter={onNodeMouseEnter}
             onNodeMouseLeave={onNodeMouseLeave}
+            onNodeClick={onNodeClick}
+            onNodeDragStart={onNodeDragStart}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             fitView

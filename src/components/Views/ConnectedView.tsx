@@ -69,9 +69,9 @@ export function ConnectedView({
         {/* Content Area */}
         <TabContentArea
           activeTab={activeTab}
-                tables={tables}
-                foreignKeys={foreignKeys}
-                watchedTables={watchedTables}
+          tables={tables}
+          foreignKeys={foreignKeys}
+          watchedTables={watchedTables}
           events={events}
           tablesWithChanges={tablesWithChanges}
           getChangesForTable={getChangesForTable}
@@ -79,27 +79,24 @@ export function ConnectedView({
           onSelectTable={onSelectTable}
           selectedTable={selectedTable}
           onClearEvents={onClearEvents}
-                onHoveredTableChange={setErdHoveredTable}
-          getDryRunChangesForTable={dryRun.getChangesForTable}
-                    />
+          onHoveredTableChange={setErdHoveredTable}
+          dryRunSql={dryRun.sql}
+          setDryRunSql={dryRun.setSql}
+          isDryRunning={dryRun.isRunning}
+          dryRunResult={dryRun.result}
+          onDryRun={dryRun.run}
+        />
 
         {/* Side Panel - Right Position */}
         {eventLogPosition === "right" && (
           <SidePanel
             activeTab={activeTab}
             eventLogPosition={eventLogPosition}
-              events={events}
-              onClearEvents={onClearEvents}
+            events={events}
+            onClearEvents={onClearEvents}
             erdHoveredTable={erdHoveredTable}
-            erdExpandedEventIds={eventLog.expandedIds}
-            erdOnToggleExpanded={eventLog.toggleExpanded}
             eventLogExpandedEventIds={eventLog.expandedIds}
             eventLogOnToggleExpanded={eventLog.toggleExpanded}
-            dryRunSql={dryRun.sql}
-            setDryRunSql={dryRun.setSql}
-            isDryRunning={dryRun.isRunning}
-            dryRunResult={dryRun.result}
-            onDryRun={dryRun.run}
           />
         )}
       </div>
@@ -109,18 +106,11 @@ export function ConnectedView({
         <SidePanel
           activeTab={activeTab}
           eventLogPosition={eventLogPosition}
-            events={events}
-            onClearEvents={onClearEvents}
+          events={events}
+          onClearEvents={onClearEvents}
           erdHoveredTable={erdHoveredTable}
-          erdExpandedEventIds={eventLog.expandedIds}
-          erdOnToggleExpanded={eventLog.toggleExpanded}
           eventLogExpandedEventIds={eventLog.expandedIds}
           eventLogOnToggleExpanded={eventLog.toggleExpanded}
-          dryRunSql={dryRun.sql}
-          setDryRunSql={dryRun.setSql}
-          isDryRunning={dryRun.isRunning}
-          dryRunResult={dryRun.result}
-          onDryRun={dryRun.run}
         />
       )}
     </div>

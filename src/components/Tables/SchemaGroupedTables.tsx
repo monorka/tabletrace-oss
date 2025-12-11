@@ -62,9 +62,12 @@ export function SchemaGroupedTables({
         return (
           <div key={schema}>
             {/* Schema Header */}
-            <button
+            <div
               onClick={() => toggleSchema(schema)}
-              className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-secondary transition-colors"
+              className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-secondary transition-colors cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && toggleSchema(schema)}
             >
               <div className="flex items-center gap-2">
                 <motion.div
@@ -93,7 +96,7 @@ export function SchemaGroupedTables({
                   <Eye className="w-3.5 h-3.5" />
                 </button>
               )}
-            </button>
+            </div>
 
             {/* Tables in this schema */}
             <AnimatePresence>

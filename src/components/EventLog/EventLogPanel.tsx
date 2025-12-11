@@ -33,6 +33,9 @@ export function EventLogPanel({
   const startPos = useRef(0);
   const startSize = useRef(0);
 
+  const MIN_SIZE = 100;
+  const COLLAPSE_THRESHOLD = 60; // Auto-collapse when dragged below this
+
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     isResizing.current = true;
@@ -44,7 +47,17 @@ export function EventLogPanel({
       const delta = isBottom
         ? startPos.current - e.clientY  // Dragging up increases height
         : startPos.current - e.clientX; // Dragging left increases width
-      const newSize = Math.max(100, Math.min(600, startSize.current + delta));
+      const rawSize = startSize.current + delta;
+
+      // Auto-collapse if dragged below threshold
+      if (rawSize < COLLAPSE_THRESHOLD) {
+        setIsCollapsed(true);
+        isResizing.current = false;
+        document.removeEventListener("mousemove", handleMouseMove);
+        return;
+      }
+
+      const newSize = Math.max(MIN_SIZE, Math.min(600, rawSize));
       setSize(newSize);
     };
 
@@ -62,10 +75,17 @@ export function EventLogPanel({
     ? (isCollapsed ? ChevronUp : ChevronDown)
     : (isCollapsed ? ChevronLeft : ChevronRight);
 
+  const DEFAULT_SIZE = isBottom ? 192 : 320;
+
+  const handleExpand = () => {
+    setSize(DEFAULT_SIZE);
+    setIsCollapsed(false);
+  };
+
   if (isCollapsed) {
     return (
       <div
-        onClick={() => setIsCollapsed(false)}
+        onClick={handleExpand}
         className={cn(
           "border-border bg-background flex items-center justify-center cursor-pointer hover:bg-secondary transition-colors",
           isBottom ? "h-8 border-t w-full" : "w-8 border-l h-full"
