@@ -18,6 +18,9 @@ export function SchemaGroupedTables({
   onStopAllWatch,
   onStartWatch,
   onStopWatch,
+  activeTab,
+  dryRunTargetTable,
+  onSetDryRunTarget,
 }: SchemaGroupedTablesProps) {
   // Group tables by schema
   const groupedTables = tables.reduce((acc, table) => {
@@ -115,6 +118,9 @@ export function SchemaGroupedTables({
                     const recentChanges = getChangesForTable(table.schema, table.name);
                     const statsChange = tablesWithChanges.find(c => c.schema === table.schema && c.table === table.name);
 
+                    const isDryRunTarget = dryRunTargetTable === fullName;
+                    const showDryRunIcon = activeTab === "dryrun";
+
                     return (
                       <TableListItem
                         key={fullName}
@@ -131,6 +137,13 @@ export function SchemaGroupedTables({
                             await onStopWatch(table.schema, table.name);
                           } else {
                             await onStartWatch(table.schema, table.name);
+                          }
+                        }}
+                        showDryRunIcon={showDryRunIcon}
+                        isDryRunTarget={isDryRunTarget}
+                        onSetDryRunTarget={() => {
+                          if (onSetDryRunTarget) {
+                            onSetDryRunTarget(isDryRunTarget ? null : fullName);
                           }
                         }}
                       />

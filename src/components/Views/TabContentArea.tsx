@@ -31,6 +31,7 @@ export interface TabContentAreaProps {
   isDryRunning?: boolean;
   dryRunResult?: DryRunResult | null;
   onDryRun?: () => void;
+  dryRunTargetTable?: string | null;
 }
 
 export function TabContentArea({
@@ -47,7 +48,8 @@ export function TabContentArea({
   setDryRunSql,
   isDryRunning,
   dryRunResult,
-  onDryRun
+  onDryRun,
+  dryRunTargetTable
 }: TabContentAreaProps) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -78,13 +80,13 @@ export function TabContentArea({
 
         {activeTab === "dryrun" && dryRunSql !== undefined && setDryRunSql && onDryRun && (
           <DryRunTabContent
-            watchedTables={watchedTables}
-            getWatchedTableData={getWatchedTableData}
             sql={dryRunSql}
             setSql={setDryRunSql}
             isRunning={isDryRunning || false}
             result={dryRunResult || null}
             onRun={onDryRun}
+            targetTable={dryRunTargetTable || null}
+            foreignKeys={foreignKeys}
           />
         )}
       </AnimatePresence>

@@ -53,8 +53,8 @@ export function CardinalityEdge({
   const angle = Math.atan2(dy, dx) * (180 / Math.PI);
 
   const strokeColor = '#6366f1';
-  const strokeOpacity = isHighlighted ? 1 : 0.7;
-  const strokeWidth = isHighlighted ? 2.5 : 2;
+  const strokeOpacity = isHighlighted ? 1 : 0.6;
+  const strokeWidth = isHighlighted ? 6 : 3;
 
   return (
     <>
@@ -112,21 +112,21 @@ export function CardinalityEdge({
       {edgeData?.fkColumn && (
         <g transform={`translate(${labelX}, ${labelY})`}>
           <rect
-            x="-20"
-            y="-8"
-            width="40"
-            height="16"
-            rx="3"
+            x="-70"
+            y="-20"
+            width="140"
+            height="40"
+            rx="6"
             fill="var(--secondary)"
             fillOpacity="0.95"
           />
           <text
             x="0"
-            y="4"
+            y="8"
             textAnchor="middle"
             fill="var(--foreground)"
-            fontSize="9"
-            fontWeight="500"
+            fontSize="28"
+            fontWeight="600"
           >
             {edgeData.fkColumn}
           </text>
