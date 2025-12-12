@@ -34,7 +34,7 @@ export function WatchedTableCardHeader({
   loading
 }: WatchedTableCardHeaderProps) {
   return (
-    <div className="h-12 px-4 py-2 border-b border-border flex items-center gap-3 bg-secondary">
+    <div className="h-9 px-3 py-1.5 border-b border-border flex items-center gap-3 bg-secondary">
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <Table2 className="w-4 h-4 text-accent-purple shrink-0" />
         <span className="font-medium text-sm truncate">{table}</span>
