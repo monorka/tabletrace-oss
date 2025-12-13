@@ -33,20 +33,23 @@ interface TableDataState {
   error: string | null;
 }
 
-// Check if a row matches a change (by comparing PK or all values)
+// Check if a row matches a change (by comparing PK)
 const rowMatchesChange = (
   row: Record<string, unknown>,
   change: DryRunChange,
   columns: ColumnInfo[]
 ): { matches: boolean; changeType: "INSERT" | "UPDATE" | "DELETE" | null } => {
   const pkColumn = columns.find(c => c.is_primary_key);
-  const data = change.type === "DELETE" ? change.before : change.after;
 
-  if (!data) return { matches: false, changeType: null };
+  // Try to match using before data first, then after data
+  // (backend may not always provide before data for UPDATE)
+  const matchData = change.before || change.after;
+
+  if (!matchData) return { matches: false, changeType: null };
 
   if (pkColumn) {
     const rowPk = row[pkColumn.name];
-    const changePk = data[pkColumn.name];
+    const changePk = matchData[pkColumn.name];
     if (rowPk !== undefined && changePk !== undefined && String(rowPk) === String(changePk)) {
       return { matches: true, changeType: change.type };
     }
@@ -261,6 +264,38 @@ export function DryRunTabContent({
     return String(pkValue);
   };
 
+  // Get FK value from referenced table
+  const getFkValue = (colName: string): string | null => {
+    if (!targetTable) return null;
+    const [schema, table] = targetTable.includes(".")
+      ? targetTable.split(".")
+      : ["public", targetTable];
+
+    // Find the FK that corresponds to this column
+    const fk = foreignKeys.find(
+      fk => fk.from_schema === schema && fk.from_table === table && fk.from_column === colName
+    );
+    if (!fk) return null;
+
+    // Get data from the referenced table
+    const refTableName = `${fk.to_schema}.${fk.to_table}`;
+    const refData = relatedTablesData[refTableName];
+    if (!refData || refData.rows.length === 0) return null;
+
+    // Get the PK value from the referenced table
+    const refPkColumn = refData.columns.find(c => c.is_primary_key);
+    if (!refPkColumn) return null;
+
+    const refPkValue = refData.rows[0][refPkColumn.name];
+    if (refPkValue === null || refPkValue === undefined) return null;
+
+    const type = refPkColumn.data_type.toLowerCase();
+    if (type === 'uuid' || type === 'text' || type.startsWith('character') || type.startsWith('varchar')) {
+      return `'${refPkValue}'`;
+    }
+    return String(refPkValue);
+  };
+
   // Generate sample value based on column type
   const getSampleValue = (colType: string, colName: string, isPrimaryKey = false, forUpdate = false): string => {
     const type = colType.toLowerCase();
@@ -275,6 +310,16 @@ export function DryRunTabContent({
     if (type === 'uuid' || type.includes('uuid')) return sampleUuid();
     if (isPrimaryKey && name === 'id' && (type === 'text' || type.startsWith('character') || type.startsWith('varchar'))) {
       return sampleUuid();
+    }
+
+    // For FK columns (ending with _id), get value from referenced table first
+    if (name.endsWith('_id') && !isPrimaryKey) {
+      // Try to get value from referenced table
+      const fkValue = getFkValue(colName);
+      if (fkValue) return fkValue;
+      // Fallback to existing value from main table
+      const existingValue = getExistingValue(colName);
+      if (existingValue) return existingValue;
     }
 
     if (!isPrimaryKey && !forUpdate) {
@@ -335,7 +380,9 @@ export function DryRunTabContent({
     const updatableColumns = columns.filter(c => {
       if (c.is_primary_key) return false;
       const name = c.name.toLowerCase();
-      if (['created_at', 'modified_at'].includes(name)) return false;
+      if (['created_at', 'modified_at', 'updated_at'].includes(name)) return false;
+      // Exclude FK columns from UPDATE to avoid accidentally breaking relationships
+      if (name.endsWith('_id')) return false;
       return true;
     });
 
@@ -466,11 +513,13 @@ export function DryRunTabContent({
             {displayRows.slice(0, isMainTable ? 10 : 5).map((row, idx) => {
               // Check if this row is affected by changes
               let rowChangeType: "INSERT" | "UPDATE" | "DELETE" | null = null;
+              let matchedChange: DryRunChange | null = null;
 
               for (const change of changes) {
                 const { matches, changeType } = rowMatchesChange(row, change, cols);
                 if (matches) {
                   rowChangeType = changeType;
+                  matchedChange = change;
                   break;
                 }
               }
@@ -485,23 +534,54 @@ export function DryRunTabContent({
               });
               if (isInserted) rowChangeType = "INSERT";
 
+              // For UPDATE, find which columns changed
+              const changedColumns = new Set<string>();
+              if (rowChangeType === "UPDATE" && matchedChange?.after) {
+                for (const col of cols) {
+                  // Compare against before if available, otherwise against original row
+                  const beforeVal = matchedChange.before ? matchedChange.before[col.name] : row[col.name];
+                  const afterVal = matchedChange.after[col.name];
+                  if (JSON.stringify(beforeVal) !== JSON.stringify(afterVal)) {
+                    changedColumns.add(col.name);
+                  }
+                }
+              }
+
+              // Get display value - use after values for UPDATE
+              const getDisplayValue = (colName: string) => {
+                if (rowChangeType === "UPDATE" && matchedChange?.after) {
+                  return matchedChange.after[colName];
+                }
+                return row[colName];
+              };
+
               return (
                 <tr
                   key={idx}
                   className={cn(
                     "hover:bg-secondary/50",
                     rowChangeType === "INSERT" && "bg-accent-green/30",
-                    rowChangeType === "UPDATE" && "bg-accent-yellow/30",
                     rowChangeType === "DELETE" && "bg-accent-red/30 line-through opacity-60"
                   )}
                 >
-                  {cols.map((col) => (
-                    <td key={col.name} className="px-3 py-1.5 font-mono whitespace-nowrap max-w-[150px] truncate border-b border-r border-border/30">
-                      <span className={row[col.name] === null ? 'text-muted-foreground italic' : ''}>
-                        {formatCellValue(row[col.name])}
-                      </span>
-                    </td>
-                  ))}
+                  {cols.map((col) => {
+                    const isChangedColumn = changedColumns.has(col.name);
+                    const displayValue = getDisplayValue(col.name);
+
+                    return (
+                      <td
+                        key={col.name}
+                        className={cn(
+                          "px-3 py-1.5 font-mono whitespace-nowrap max-w-[150px] truncate border-b border-r border-border/30",
+                          isChangedColumn && "bg-accent-yellow/40 text-accent-yellow font-medium"
+                        )}
+                      >
+                        <span className={displayValue === null ? 'text-muted-foreground italic' : ''}>
+                          {formatCellValue(displayValue)}
+                        </span>
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}
