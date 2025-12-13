@@ -34,13 +34,13 @@ export function WatchedTableCardHeader({
   loading
 }: WatchedTableCardHeaderProps) {
   return (
-    <div className="h-12 px-4 py-2 border-b border-border flex items-center justify-between bg-secondary">
-      <div className="flex items-center gap-2">
-        <Table2 className="w-4 h-4 text-accent-purple" />
-        <span className="font-medium text-sm">{table}</span>
-        <span className="text-xs text-muted-foreground">{schema}</span>
+    <div className="h-9 px-3 py-1.5 border-b border-border flex items-center gap-3 bg-secondary">
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <Table2 className="w-4 h-4 text-accent-purple shrink-0" />
+        <span className="font-medium text-sm truncate">{table}</span>
+        <span className="text-xs text-muted-foreground shrink-0">{schema}</span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 shrink-0">
         {/* Show only changed toggle */}
         {changedRowCount > 0 && (
           <button
@@ -48,12 +48,12 @@ export function WatchedTableCardHeader({
             className={cn(
               "group flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer",
               showOnlyChanged
-                ? "bg-accent-yellow text-black ring-2 ring-accent-yellow/50"
+                ? "bg-accent-yellow/90 text-amber-900 ring-2 ring-accent-yellow/50"
                 : "bg-accent-yellow/20 text-accent-yellow hover:bg-accent-yellow/40 hover:ring-1 hover:ring-accent-yellow/30"
             )}
             title={showOnlyChanged ? "Show all rows" : "Show only changed rows"}
           >
-            <span className={cn("w-2 h-2 rounded-full transition-colors", showOnlyChanged ? "bg-black" : "bg-accent-yellow group-hover:animate-pulse")} />
+            <span className={cn("w-2 h-2 rounded-full transition-colors", showOnlyChanged ? "bg-amber-900" : "bg-accent-yellow group-hover:animate-pulse")} />
             {changedRowCount} changed
           </button>
         )}

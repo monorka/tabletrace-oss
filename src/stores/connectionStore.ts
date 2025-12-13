@@ -106,9 +106,6 @@ interface ConnectionState {
   // Stats polling interval
   statsIntervalId?: ReturnType<typeof setInterval>;
 
-  // Connection health check
-  consecutiveErrors: number;
-
   // Actions
   connect: (config: PgConfig) => Promise<void>;
   connectSupabase: (config: SupabaseConfig) => Promise<void>;
@@ -155,20 +152,10 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
   eventsPerSecond: 0,
   unlistenFn: undefined,
   statsIntervalId: undefined,
-  consecutiveErrors: 0,
 
   // Connect to PostgreSQL
   connect: async (config: PgConfig) => {
-    set({
-      status: "connecting",
-      connectionType: "postgres",
-      errorMessage: undefined,
-      events: [],
-      consecutiveErrors: 0,
-      watchedTables: [],
-      watchedTableData: new Map(),
-      tablesWithChanges: [],
-    });
+    set({ status: "connecting", connectionType: "postgres", errorMessage: undefined });
 
     try {
       const response = await tauriCommands.connectPostgres(config);
@@ -197,16 +184,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
 
   // Connect to Supabase
   connectSupabase: async (config: SupabaseConfig) => {
-    set({
-      status: "connecting",
-      connectionType: "supabase",
-      errorMessage: undefined,
-      events: [],
-      consecutiveErrors: 0,
-      watchedTables: [],
-      watchedTableData: new Map(),
-      tablesWithChanges: [],
-    });
+    set({ status: "connecting", connectionType: "supabase", errorMessage: undefined });
 
     try {
       const response = await tauriCommands.connectSupabase(config);
@@ -262,7 +240,6 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         selectedTableRowCount: 0,
         events: [],
         errorMessage: undefined,
-        consecutiveErrors: 0,
       });
     } catch (error) {
       console.error("Disconnect error:", error);
@@ -380,28 +357,9 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       // Combine recent changes with new changes
       const allChanges = [...recentChanges, ...newChanges];
 
-      set({ tableStats: newStats, tablesWithChanges: allChanges, consecutiveErrors: 0 });
+      set({ tableStats: newStats, tablesWithChanges: allChanges });
     } catch (error) {
       console.error("Failed to refresh table stats:", error);
-      const { consecutiveErrors, status } = get();
-      const newErrorCount = consecutiveErrors + 1;
-
-      // After 3 consecutive errors, assume connection is lost
-      if (newErrorCount >= 3 && status === "connected") {
-        get().stopStatsPolling();
-        get().cleanupEventListener();
-        set({
-          status: "error",
-          errorMessage: "Connection lost. Database may be unavailable.",
-          consecutiveErrors: newErrorCount,
-          // Clear watched state
-          watchedTables: [],
-          watchedTableData: new Map(),
-          tablesWithChanges: [],
-        });
-      } else {
-        set({ consecutiveErrors: newErrorCount });
-      }
     }
   },
 

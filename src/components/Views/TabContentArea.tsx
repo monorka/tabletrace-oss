@@ -4,8 +4,8 @@
 
 import { AnimatePresence } from "framer-motion";
 import { TabType, ERDHoveredTable } from "../../types";
-import { TableInfo, ForeignKeyInfo } from "../../lib/tauri";
-import { TableChange, DryRunChange } from "../../lib/tauri";
+import { TableInfo, ForeignKeyInfo, DryRunResult } from "../../lib/tauri";
+import { TableChange } from "../../lib/tauri";
 import { WatchedTableData, TableChangeInfo } from "../../stores/connectionStore";
 import { TablesTabContent } from "./TablesTabContent";
 import { TimelineTabContent } from "./TimelineTabContent";
@@ -25,7 +25,13 @@ export interface TabContentAreaProps {
   selectedTable?: { schema: string; table: string };
   onClearEvents: () => void;
   onHoveredTableChange?: (table: ERDHoveredTable | null) => void;
-  getDryRunChangesForTable?: (schema: string, table: string) => DryRunChange[];
+  // Dry Run props
+  dryRunSql?: string;
+  setDryRunSql?: (sql: string) => void;
+  isDryRunning?: boolean;
+  dryRunResult?: DryRunResult | null;
+  onDryRun?: () => void;
+  dryRunTargetTable?: string | null;
 }
 
 export function TabContentArea({
@@ -38,7 +44,12 @@ export function TabContentArea({
   onSelectTable,
   onClearEvents,
   onHoveredTableChange,
-  getDryRunChangesForTable
+  dryRunSql,
+  setDryRunSql,
+  isDryRunning,
+  dryRunResult,
+  onDryRun,
+  dryRunTargetTable
 }: TabContentAreaProps) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -67,11 +78,15 @@ export function TabContentArea({
           />
         )}
 
-        {activeTab === "dryrun" && getDryRunChangesForTable && (
+        {activeTab === "dryrun" && dryRunSql !== undefined && setDryRunSql && onDryRun && (
           <DryRunTabContent
-            watchedTables={watchedTables}
-            getWatchedTableData={getWatchedTableData}
-            getDryRunChangesForTable={getDryRunChangesForTable}
+            sql={dryRunSql}
+            setSql={setDryRunSql}
+            isRunning={isDryRunning || false}
+            result={dryRunResult || null}
+            onRun={onDryRun}
+            targetTable={dryRunTargetTable || null}
+            foreignKeys={foreignKeys}
           />
         )}
       </AnimatePresence>

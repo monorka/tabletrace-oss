@@ -4,7 +4,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Table2, Eye, EyeOff } from "lucide-react";
+import { Table2, Eye, EyeOff, FlaskConical } from "lucide-react";
 import { TableListItemProps } from "../../types";
 import { cn } from "../../lib/utils";
 
@@ -17,7 +17,10 @@ export function TableListItem({
   changes,
   statsChange,
   onSelect: _onSelect,
-  onToggleWatch
+  onToggleWatch,
+  showDryRunIcon,
+  isDryRunTarget,
+  onSetDryRunTarget
 }: TableListItemProps) {
   // Flash color based on change type (only for non-watched tables)
   const getFlashColor = () => {
@@ -59,16 +62,30 @@ export function TableListItem({
     return () => clearInterval(interval);
   }, [statsChange, isWatched]);
 
+  // In dry run mode, clicking selects for dry run instead of toggling watch
+  const handleClick = () => {
+    if (showDryRunIcon) {
+      onSetDryRunTarget?.();
+    } else {
+      onToggleWatch();
+    }
+  };
+
   return (
     <div
       className={cn(
         "group flex items-center justify-between px-2 py-1.5 rounded-md cursor-pointer transition-colors",
-        isWatched ? "bg-accent-green/10" : "hover:bg-secondary",
+        showDryRunIcon
+          ? (isDryRunTarget ? "bg-accent-purple/10" : "hover:bg-secondary")
+          : (isWatched ? "bg-accent-green/10" : "hover:bg-secondary"),
         isSelected && "ring-1 ring-accent-purple"
       )}
-      onClick={onToggleWatch}
-      title={isWatched ? "Stop watching" : statsChange ? `Changed: +${statsChange.insertDelta} ~${statsChange.updateDelta} -${statsChange.deleteDelta}` : "Watch table"}
-      style={flashColor && opacity > 0 ? {
+      onClick={handleClick}
+      title={showDryRunIcon
+        ? (isDryRunTarget ? "Selected for Dry Run" : "Select for Dry Run")
+        : (isWatched ? "Stop watching" : statsChange ? `Changed: +${statsChange.insertDelta} ~${statsChange.updateDelta} -${statsChange.deleteDelta}` : "Watch table")
+      }
+      style={!showDryRunIcon && flashColor && opacity > 0 ? {
         backgroundColor: `color-mix(in srgb, ${flashColor} ${Math.round(opacity * 100)}%, transparent)`,
       } : {}}
     >
@@ -80,7 +97,8 @@ export function TableListItem({
         </div>
       </div>
       <div className="flex items-center gap-1">
-        {changes > 0 && (
+        {/* Change count badge (hidden in dry run mode) */}
+        {!showDryRunIcon && changes > 0 && (
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -89,16 +107,31 @@ export function TableListItem({
             {changes}
           </motion.span>
         )}
-        <div
-          className={cn(
-            "p-1 rounded transition-colors",
-            isWatched
-              ? "text-accent-green"
-              : "text-muted-foreground opacity-0 group-hover:opacity-100"
-          )}
-        >
-          {isWatched ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-        </div>
+        {/* Dry Run Target Icon (only shown in dry run tab) */}
+        {showDryRunIcon ? (
+          <div
+            className={cn(
+              "p-1 rounded transition-colors",
+              isDryRunTarget
+                ? "text-accent-purple"
+                : "text-muted-foreground opacity-0 group-hover:opacity-100"
+            )}
+          >
+            <FlaskConical className="w-3.5 h-3.5" />
+          </div>
+        ) : (
+          /* Watch Icon (hidden in dry run tab) */
+          <div
+            className={cn(
+              "p-1 rounded transition-colors",
+              isWatched
+                ? "text-accent-green"
+                : "text-muted-foreground opacity-0 group-hover:opacity-100"
+            )}
+          >
+            {isWatched ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+          </div>
+        )}
       </div>
     </div>
   );

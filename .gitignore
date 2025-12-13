@@ -35,3 +35,6 @@ src-tauri/target/
 # Temporary files
 *.tmp
 *.bak
+
+# Internal docs (not for OSS release)
+docs/*

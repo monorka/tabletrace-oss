@@ -29,8 +29,8 @@ export function DiffViewer({
   }
 
   return (
-    <div className="text-[10px] bg-primary rounded overflow-hidden">
-      <table className="w-full">
+    <div className="text-[10px] bg-card rounded overflow-x-auto">
+      <table className="w-full min-w-max">
         <thead>
           <tr className="bg-secondary">
             <th className="px-2 py-1 text-left font-medium text-muted-foreground">Column</th>
@@ -55,12 +55,12 @@ export function DiffViewer({
                 {d.key}
               </td>
               {type !== "INSERT" && (
-                <td className={`px-2 py-1 max-w-[80px] truncate ${d.type === 'removed' || d.type === 'modified' ? 'text-accent-red' : 'text-muted-foreground'}`}>
+                <td className={`px-2 py-1 whitespace-nowrap ${d.type === 'removed' || d.type === 'modified' ? 'text-accent-red' : 'text-muted-foreground'}`}>
                   {formatDiffValue(d.before)}
                 </td>
               )}
               {type !== "DELETE" && (
-                <td className={`px-2 py-1 max-w-[80px] truncate ${d.type === 'added' || d.type === 'modified' ? 'text-accent-green' : 'text-muted-foreground'}`}>
+                <td className={`px-2 py-1 whitespace-nowrap ${d.type === 'added' || d.type === 'modified' ? 'text-accent-green' : 'text-muted-foreground'}`}>
                   {formatDiffValue(d.after)}
                 </td>
               )}

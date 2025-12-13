@@ -37,6 +37,9 @@ export function ConnectedView({
   // ERD hovered table state (managed here to pass to SidePanel)
   const [erdHoveredTable, setErdHoveredTable] = useState<ERDHoveredTable | null>(null);
 
+  // Dry Run target table (single table selection for query generation)
+  const [dryRunTargetTable, setDryRunTargetTable] = useState<string | null>(null);
+
   // Event Log expanded state for ERD panel
   const eventLog = useEventLog();
 
@@ -46,6 +49,16 @@ export function ConnectedView({
       dryRun.clearResult();
     }
   }, [activeTab, dryRun]);
+
+  // Auto-select first table when switching to dry run tab
+  useEffect(() => {
+    if (activeTab === "dryrun" && tables.length > 0 && !dryRunTargetTable) {
+      // Select first public table, or first table if no public tables
+      const publicTables = tables.filter(t => t.schema === "public");
+      const firstTable = publicTables.length > 0 ? publicTables[0] : tables[0];
+      setDryRunTargetTable(`${firstTable.schema}.${firstTable.name}`);
+    }
+  }, [activeTab, tables, dryRunTargetTable]);
 
   return (
     <div className={`flex-1 flex ${eventLogPosition === "bottom" ? "flex-col" : ""} overflow-hidden`}>
@@ -63,15 +76,18 @@ export function ConnectedView({
             onStopWatch={onStopWatch}
             onRefreshTables={onRefreshTables}
             onStopAllWatch={onStopAllWatch}
+            activeTab={activeTab}
+            dryRunTargetTable={dryRunTargetTable}
+            onSetDryRunTarget={setDryRunTargetTable}
           />
         )}
 
         {/* Content Area */}
         <TabContentArea
           activeTab={activeTab}
-                tables={tables}
-                foreignKeys={foreignKeys}
-                watchedTables={watchedTables}
+          tables={tables}
+          foreignKeys={foreignKeys}
+          watchedTables={watchedTables}
           events={events}
           tablesWithChanges={tablesWithChanges}
           getChangesForTable={getChangesForTable}
@@ -79,27 +95,25 @@ export function ConnectedView({
           onSelectTable={onSelectTable}
           selectedTable={selectedTable}
           onClearEvents={onClearEvents}
-                onHoveredTableChange={setErdHoveredTable}
-          getDryRunChangesForTable={dryRun.getChangesForTable}
-                    />
+          onHoveredTableChange={setErdHoveredTable}
+          dryRunSql={dryRun.sql}
+          setDryRunSql={dryRun.setSql}
+          isDryRunning={dryRun.isRunning}
+          dryRunResult={dryRun.result}
+          onDryRun={dryRun.run}
+          dryRunTargetTable={dryRunTargetTable}
+        />
 
         {/* Side Panel - Right Position */}
         {eventLogPosition === "right" && (
           <SidePanel
             activeTab={activeTab}
             eventLogPosition={eventLogPosition}
-              events={events}
-              onClearEvents={onClearEvents}
+            events={events}
+            onClearEvents={onClearEvents}
             erdHoveredTable={erdHoveredTable}
-            erdExpandedEventIds={eventLog.expandedIds}
-            erdOnToggleExpanded={eventLog.toggleExpanded}
             eventLogExpandedEventIds={eventLog.expandedIds}
             eventLogOnToggleExpanded={eventLog.toggleExpanded}
-            dryRunSql={dryRun.sql}
-            setDryRunSql={dryRun.setSql}
-            isDryRunning={dryRun.isRunning}
-            dryRunResult={dryRun.result}
-            onDryRun={dryRun.run}
           />
         )}
       </div>
@@ -109,18 +123,11 @@ export function ConnectedView({
         <SidePanel
           activeTab={activeTab}
           eventLogPosition={eventLogPosition}
-            events={events}
-            onClearEvents={onClearEvents}
+          events={events}
+          onClearEvents={onClearEvents}
           erdHoveredTable={erdHoveredTable}
-          erdExpandedEventIds={eventLog.expandedIds}
-          erdOnToggleExpanded={eventLog.toggleExpanded}
           eventLogExpandedEventIds={eventLog.expandedIds}
           eventLogOnToggleExpanded={eventLog.toggleExpanded}
-          dryRunSql={dryRun.sql}
-          setDryRunSql={dryRun.setSql}
-          isDryRunning={dryRun.isRunning}
-          dryRunResult={dryRun.result}
-          onDryRun={dryRun.run}
         />
       )}
     </div>

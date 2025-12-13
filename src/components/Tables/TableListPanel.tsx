@@ -20,7 +20,10 @@ export function TableListPanel({
   onStartWatch,
   onStopWatch,
   onRefreshTables,
-  onStopAllWatch
+  onStopAllWatch,
+  activeTab,
+  dryRunTargetTable,
+  onSetDryRunTarget
 }: TableListPanelProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -72,6 +75,9 @@ export function TableListPanel({
             onStartWatch={onStartWatch}
             onStopWatch={onStopWatch}
             onStopAllWatch={onStopAllWatch}
+            activeTab={activeTab}
+            dryRunTargetTable={dryRunTargetTable}
+            onSetDryRunTarget={onSetDryRunTarget}
           />
         )}
       </div>

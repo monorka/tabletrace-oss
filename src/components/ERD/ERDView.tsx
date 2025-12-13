@@ -100,6 +100,10 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
 
   // Track selected/hovered node for edge highlighting
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  // Track pinned node (clicked to keep details visible)
+  const [pinnedNode, setPinnedNode] = useState<string | null>(null);
+  // Track zoom level for adaptive display (start with zoomed out state)
+  const [zoomLevel, setZoomLevel] = useState(0.3);
 
   // Use Dagre for hierarchical layout (like Liam ERD)
   // Left-to-Right: tables that reference others → referenced tables
@@ -118,23 +122,24 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
     const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
     g.setGraph({
       rankdir: 'LR',      // Left to Right
-      nodesep: 100,       // Vertical spacing between nodes (increased)
-      ranksep: 150,       // Horizontal spacing between ranks (increased)
-      marginx: 50,
-      marginy: 50,
+      nodesep: 150,       // Vertical spacing between nodes
+      ranksep: 250,       // Horizontal spacing between ranks (more space for connections)
+      marginx: 80,
+      marginy: 80,
       acyclicer: 'greedy',
       ranker: 'network-simplex',
     });
 
     // Add connected nodes with extra padding for spacing
+    const actualNodeWidth = NODE_WIDTH * 1.5; // Match the 1.5x width used in TableNode
     connectedTables.forEach(table => {
       const fullName = `${table.schema}.${table.name}`;
       const cols = columnsMap.get(fullName) || [];
       // Use a minimum height even when columns aren't loaded yet
       const colCount = cols.length > 0 ? cols.slice(0, 8).length : 5; // Default to 5 columns worth of height
-      const nodeHeight = Math.max(32 + colCount * 22 + (cols.length > 8 ? 22 : 0), 150);
+      const nodeHeight = Math.max(44 + colCount * 32 + (cols.length > 8 ? 32 : 0), 180);
       // Add significant padding to create visual spacing
-      g.setNode(fullName, { width: NODE_WIDTH + 120, height: nodeHeight + 100 });
+      g.setNode(fullName, { width: actualNodeWidth + 150, height: nodeHeight + 120 });
     });
 
     // Add edges
@@ -285,7 +290,16 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
     })));
   }, [watchedTables, setNodes]);
 
-  // Update node highlight state when hovered node changes (only update data, not position)
+  // Debounced zoom level for node updates (avoid too many re-renders)
+  const [debouncedZoom, setDebouncedZoom] = useState(0.3);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedZoom(zoomLevel);
+    }, 100); // 100ms debounce
+    return () => clearTimeout(timer);
+  }, [zoomLevel]);
+
+  // Update node highlight state and zoom level when needed
   useEffect(() => {
     const isConnectedTable = hoveredNode !== null && connectedNames.has(hoveredNode);
     const relatedNodes = hoveredNode ? (relatedNodesMap.get(hoveredNode) || new Set<string>()) : new Set<string>();
@@ -300,10 +314,11 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         data: {
           ...node.data,
           isHighlighted: isHighlighted || undefined,
+          zoomLevel: debouncedZoom,
         },
       };
     }));
-  }, [hoveredNode, connectedNames, relatedNodesMap, setNodes]);
+  }, [hoveredNode, connectedNames, relatedNodesMap, setNodes, debouncedZoom]);
 
   // Update edge highlight state when hovered node changes
   useEffect(() => {
@@ -326,11 +341,30 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
 
   // Handle node hover
   const onNodeMouseEnter = useCallback((_: React.MouseEvent, node: Node) => {
+    // If hovering a different node, clear pinned state
+    if (pinnedNode && node.id !== pinnedNode) {
+      setPinnedNode(null);
+    }
+    setHoveredNode(node.id);
+  }, [pinnedNode]);
+
+  const onNodeMouseLeave = useCallback(() => {
+    // Only clear if not pinned
+    if (!pinnedNode) {
+      setHoveredNode(null);
+    }
+  }, [pinnedNode]);
+
+  // Handle node click - pin the node
+  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+    setPinnedNode(node.id);
     setHoveredNode(node.id);
   }, []);
 
-  const onNodeMouseLeave = useCallback(() => {
-    setHoveredNode(null);
+  // Handle node drag start - also pin the node
+  const onNodeDragStart = useCallback((_: React.MouseEvent, node: Node) => {
+    setPinnedNode(node.id);
+    setHoveredNode(node.id);
   }, []);
 
   // Notify parent of hovered table changes
@@ -406,15 +440,15 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
       className="flex-1 flex flex-col overflow-hidden"
     >
       {/* ERD Header */}
-      <div className="h-12 px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+      <div className="h-12 px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="flex items-center gap-2 shrink-0">
             <GitBranch className="w-4 h-4 text-accent-cyan" />
-            <span className="text-xs font-medium">ER Diagram</span>
+            <span className="text-xs font-medium">ERD</span>
           </div>
 
           {/* Schema Selector - Button Style */}
-          <div className="flex items-center gap-1 bg-secondary rounded-lg p-0.5 border border-border">
+          <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-0.5 border border-border shrink-0">
             {schemas.map(schema => (
               <Button
                 key={schema}
@@ -422,7 +456,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
                 variant={selectedSchema === schema ? "default" : "ghost"}
                 size="sm"
                 className={cn(
-                  "px-2.5 py-1 text-[10px] font-medium rounded-md h-auto",
+                  "px-2 py-0.5 text-[10px] font-medium rounded h-auto",
                   selectedSchema === schema && "bg-accent-purple text-white hover:bg-accent-purple/90"
                 )}
               >
@@ -431,13 +465,11 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
             ))}
           </div>
 
-          <span className="text-[10px] text-muted-foreground">
-            {filteredTables.length - isolatedCount} connected · {isolatedCount} isolated · {filteredForeignKeys.length} FK
+          <span className="text-[10px] text-muted-foreground truncate">
+            {filteredTables.length - isolatedCount} tables · {filteredForeignKeys.length} relations
           </span>
         </div>
-        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-          <span>Drag to move</span>
-          <span className="mx-1">·</span>
+        <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0">
           <span>Scroll to zoom</span>
         </div>
       </div>
@@ -496,7 +528,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         )}
 
         {/* ERD Canvas */}
-        <div className="flex-1">
+        <div className="flex-1 relative">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -504,6 +536,9 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
             onEdgesChange={onEdgesChange}
             onNodeMouseEnter={onNodeMouseEnter}
             onNodeMouseLeave={onNodeMouseLeave}
+            onNodeClick={onNodeClick}
+            onNodeDragStart={onNodeDragStart}
+            onMove={(_, viewport) => setZoomLevel(viewport.zoom)}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             fitView
@@ -514,6 +549,11 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
           >
             <Background color="var(--border)" gap={20} size={1} />
           </ReactFlow>
+
+          {/* Zoom Level Indicator */}
+          <div className="absolute bottom-2 right-2 px-2 py-1 bg-secondary/80 rounded text-[10px] text-muted-foreground">
+            {Math.round(zoomLevel * 100)}%
+          </div>
         </div>
       </div>
     </motion.div>

@@ -27,7 +27,7 @@ export function SidebarButton({
         relative p-2 rounded-lg transition-all duration-200 group
         ${active
           ? "bg-[var(--accent-purple)]/20 text-[var(--accent-purple)]"
-          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted"
         }
         ${highlight ? "ring-1 ring-[var(--accent-purple)]/50" : ""}
       `}
