@@ -159,8 +159,8 @@ jobs:
       # Linux / Windows: tauri-action (normal)
       # ==================================================
       - name: Build Linux / Windows
-        if: ${{ !startsWith(matrix.platform, 'macos') }}
-        uses: tauri-apps/tauri-action@v1
+        if: "!startsWith(matrix.platform, 'macos')"
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
