@@ -8,7 +8,7 @@ interface StatusIndicatorProps {
 
 export function StatusIndicator({ status }: StatusIndicatorProps) {
   const colors: Record<string, string> = {
-    disconnected: "bg-[var(--text-secondary)]",
+    disconnected: "bg-muted-foreground",
     connecting: "bg-yellow-500 animate-pulse",
     connected: "bg-[var(--accent-green)]",
     reconnecting: "bg-yellow-500 animate-pulse",

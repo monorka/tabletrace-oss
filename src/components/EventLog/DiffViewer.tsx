@@ -22,23 +22,23 @@ export function DiffViewer({
 
   if (filteredDiff.length === 0) {
     return (
-      <div className="text-[10px] text-[var(--text-secondary)] text-center py-2">
+      <div className="text-[10px] text-muted-foreground text-center py-2">
         No changes to display
       </div>
     );
   }
 
   return (
-    <div className="text-[10px] bg-[var(--bg-primary)] rounded overflow-hidden">
-      <table className="w-full">
+    <div className="text-[10px] bg-card rounded overflow-x-auto">
+      <table className="w-full min-w-max">
         <thead>
-          <tr className="bg-[var(--bg-tertiary)]">
-            <th className="px-2 py-1 text-left font-medium text-[var(--text-secondary)]">Column</th>
+          <tr className="bg-secondary">
+            <th className="px-2 py-1 text-left font-medium text-muted-foreground">Column</th>
             {type !== "INSERT" && (
-              <th className="px-2 py-1 text-left font-medium text-[var(--accent-red)]">Before</th>
+              <th className="px-2 py-1 text-left font-medium text-accent-red">Before</th>
             )}
             {type !== "DELETE" && (
-              <th className="px-2 py-1 text-left font-medium text-[var(--accent-green)]">After</th>
+              <th className="px-2 py-1 text-left font-medium text-accent-green">After</th>
             )}
           </tr>
         </thead>
@@ -46,21 +46,21 @@ export function DiffViewer({
           {filteredDiff.map((d) => (
             <tr
               key={d.key}
-              className={`border-t border-[var(--border-color)] ${
-                d.changed ? 'bg-[var(--accent-yellow)]/5' : ''
+              className={`border-t border-border ${
+                d.changed ? 'bg-accent-yellow/5' : ''
               }`}
             >
-              <td className={`px-2 py-1 font-medium ${d.changed ? 'text-[var(--accent-yellow)]' : 'text-[var(--text-secondary)]'}`}>
+              <td className={`px-2 py-1 font-medium ${d.changed ? 'text-accent-yellow' : 'text-muted-foreground'}`}>
                 {d.changed && <span className="mr-1">●</span>}
                 {d.key}
               </td>
               {type !== "INSERT" && (
-                <td className={`px-2 py-1 max-w-[80px] truncate ${d.type === 'removed' || d.type === 'modified' ? 'text-[var(--accent-red)]' : 'text-[var(--text-secondary)]'}`}>
+                <td className={`px-2 py-1 whitespace-nowrap ${d.type === 'removed' || d.type === 'modified' ? 'text-accent-red' : 'text-muted-foreground'}`}>
                   {formatDiffValue(d.before)}
                 </td>
               )}
               {type !== "DELETE" && (
-                <td className={`px-2 py-1 max-w-[80px] truncate ${d.type === 'added' || d.type === 'modified' ? 'text-[var(--accent-green)]' : 'text-[var(--text-secondary)]'}`}>
+                <td className={`px-2 py-1 whitespace-nowrap ${d.type === 'added' || d.type === 'modified' ? 'text-accent-green' : 'text-muted-foreground'}`}>
                   {formatDiffValue(d.after)}
                 </td>
               )}

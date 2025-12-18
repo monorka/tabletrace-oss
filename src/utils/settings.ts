@@ -6,6 +6,7 @@ import {
   LayoutSettings,
   AppSettings,
   EventLogPosition,
+  Theme,
   defaultLayoutSettings,
   defaultAppSettings,
 } from "../types";
@@ -50,10 +51,14 @@ export const loadAppSettings = (): AppSettings => {
     const saved = localStorage.getItem("tabletrace-settings");
     if (saved) {
       const parsed = JSON.parse(saved);
+      const validThemes: Theme[] = ["light", "dark", "system"];
       return {
         maxDisplayRows: typeof parsed.maxDisplayRows === "number" && parsed.maxDisplayRows >= 1 && parsed.maxDisplayRows <= 10000
           ? parsed.maxDisplayRows
           : defaultAppSettings.maxDisplayRows,
+        theme: parsed.theme && validThemes.includes(parsed.theme)
+          ? parsed.theme
+          : defaultAppSettings.theme,
       };
     }
   } catch (e) {

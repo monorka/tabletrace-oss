@@ -19,6 +19,8 @@ import { tauriCommands } from "../../lib/tauri";
 import { ERDViewProps, TableNodeData, NODE_WIDTH } from "../../types";
 import { TableNode } from "./TableNode";
 import { CardinalityEdge } from "./CardinalityEdge";
+import { Button } from "../ui/button";
+import { cn } from "../../lib/utils";
 
 const nodeTypes = { tableNode: TableNode };
 const edgeTypes = { cardinality: CardinalityEdge };
@@ -98,6 +100,10 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
 
   // Track selected/hovered node for edge highlighting
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  // Track pinned node (clicked to keep details visible)
+  const [pinnedNode, setPinnedNode] = useState<string | null>(null);
+  // Track zoom level for adaptive display (start with zoomed out state)
+  const [zoomLevel, setZoomLevel] = useState(0.3);
 
   // Use Dagre for hierarchical layout (like Liam ERD)
   // Left-to-Right: tables that reference others → referenced tables
@@ -116,23 +122,24 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
     const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
     g.setGraph({
       rankdir: 'LR',      // Left to Right
-      nodesep: 100,       // Vertical spacing between nodes (increased)
-      ranksep: 150,       // Horizontal spacing between ranks (increased)
-      marginx: 50,
-      marginy: 50,
+      nodesep: 150,       // Vertical spacing between nodes
+      ranksep: 250,       // Horizontal spacing between ranks (more space for connections)
+      marginx: 80,
+      marginy: 80,
       acyclicer: 'greedy',
       ranker: 'network-simplex',
     });
 
     // Add connected nodes with extra padding for spacing
+    const actualNodeWidth = NODE_WIDTH * 1.5; // Match the 1.5x width used in TableNode
     connectedTables.forEach(table => {
       const fullName = `${table.schema}.${table.name}`;
       const cols = columnsMap.get(fullName) || [];
       // Use a minimum height even when columns aren't loaded yet
       const colCount = cols.length > 0 ? cols.slice(0, 8).length : 5; // Default to 5 columns worth of height
-      const nodeHeight = Math.max(32 + colCount * 22 + (cols.length > 8 ? 22 : 0), 150);
+      const nodeHeight = Math.max(44 + colCount * 32 + (cols.length > 8 ? 32 : 0), 180);
       // Add significant padding to create visual spacing
-      g.setNode(fullName, { width: NODE_WIDTH + 120, height: nodeHeight + 100 });
+      g.setNode(fullName, { width: actualNodeWidth + 150, height: nodeHeight + 120 });
     });
 
     // Add edges
@@ -283,7 +290,16 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
     })));
   }, [watchedTables, setNodes]);
 
-  // Update node highlight state when hovered node changes (only update data, not position)
+  // Debounced zoom level for node updates (avoid too many re-renders)
+  const [debouncedZoom, setDebouncedZoom] = useState(0.3);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedZoom(zoomLevel);
+    }, 100); // 100ms debounce
+    return () => clearTimeout(timer);
+  }, [zoomLevel]);
+
+  // Update node highlight state and zoom level when needed
   useEffect(() => {
     const isConnectedTable = hoveredNode !== null && connectedNames.has(hoveredNode);
     const relatedNodes = hoveredNode ? (relatedNodesMap.get(hoveredNode) || new Set<string>()) : new Set<string>();
@@ -298,10 +314,11 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         data: {
           ...node.data,
           isHighlighted: isHighlighted || undefined,
+          zoomLevel: debouncedZoom,
         },
       };
     }));
-  }, [hoveredNode, connectedNames, relatedNodesMap, setNodes]);
+  }, [hoveredNode, connectedNames, relatedNodesMap, setNodes, debouncedZoom]);
 
   // Update edge highlight state when hovered node changes
   useEffect(() => {
@@ -324,11 +341,30 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
 
   // Handle node hover
   const onNodeMouseEnter = useCallback((_: React.MouseEvent, node: Node) => {
+    // If hovering a different node, clear pinned state
+    if (pinnedNode && node.id !== pinnedNode) {
+      setPinnedNode(null);
+    }
+    setHoveredNode(node.id);
+  }, [pinnedNode]);
+
+  const onNodeMouseLeave = useCallback(() => {
+    // Only clear if not pinned
+    if (!pinnedNode) {
+      setHoveredNode(null);
+    }
+  }, [pinnedNode]);
+
+  // Handle node click - pin the node
+  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+    setPinnedNode(node.id);
     setHoveredNode(node.id);
   }, []);
 
-  const onNodeMouseLeave = useCallback(() => {
-    setHoveredNode(null);
+  // Handle node drag start - also pin the node
+  const onNodeDragStart = useCallback((_: React.MouseEvent, node: Node) => {
+    setPinnedNode(node.id);
+    setHoveredNode(node.id);
   }, []);
 
   // Notify parent of hovered table changes
@@ -371,8 +407,8 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         className="flex-1 flex items-center justify-center"
       >
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-[var(--accent-purple)]" />
-          <p className="text-sm text-[var(--text-secondary)]">Loading schema...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-accent-purple" />
+          <p className="text-sm text-muted-foreground">Loading schema...</p>
         </div>
       </motion.div>
     );
@@ -384,7 +420,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         key="erd-empty"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex-1 flex items-center justify-center text-[var(--text-secondary)]"
+        className="flex-1 flex items-center justify-center text-muted-foreground"
       >
         <div className="text-center">
           <GitBranch className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -404,37 +440,36 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
       className="flex-1 flex flex-col overflow-hidden"
     >
       {/* ERD Header */}
-      <div className="px-4 py-2 border-b border-[var(--border-color)] bg-[var(--bg-tertiary)]/30 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <GitBranch className="w-4 h-4 text-[var(--accent-cyan)]" />
-            <span className="text-xs font-medium">ER Diagram</span>
+      <div className="h-12 px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="flex items-center gap-2 shrink-0">
+            <GitBranch className="w-4 h-4 text-accent-cyan" />
+            <span className="text-xs font-medium">ERD</span>
           </div>
 
           {/* Schema Selector - Button Style */}
-          <div className="flex items-center gap-1 bg-[var(--bg-secondary)] rounded-lg p-0.5 border border-[var(--border-color)]">
+          <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-0.5 border border-border shrink-0">
             {schemas.map(schema => (
-              <button
+              <Button
                 key={schema}
                 onClick={() => setSelectedSchema(schema)}
-                className={`px-2.5 py-1 text-[10px] font-medium rounded-md transition-all ${
-                  selectedSchema === schema
-                    ? 'bg-[var(--accent-purple)] text-white'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'
-                }`}
+                variant={selectedSchema === schema ? "default" : "ghost"}
+                size="sm"
+                className={cn(
+                  "px-2 py-0.5 text-[10px] font-medium rounded h-auto",
+                  selectedSchema === schema && "bg-accent-purple text-white hover:bg-accent-purple/90"
+                )}
               >
                 {schema}
-              </button>
+              </Button>
             ))}
           </div>
 
-          <span className="text-[10px] text-[var(--text-secondary)]">
-            {filteredTables.length - isolatedCount} connected · {isolatedCount} isolated · {filteredForeignKeys.length} FK
+          <span className="text-[10px] text-muted-foreground truncate">
+            {filteredTables.length - isolatedCount} tables · {filteredForeignKeys.length} relations
           </span>
         </div>
-        <div className="flex items-center gap-1 text-[10px] text-[var(--text-secondary)]">
-          <span>Drag to move</span>
-          <span className="mx-1">·</span>
+        <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0">
           <span>Scroll to zoom</span>
         </div>
       </div>
@@ -443,10 +478,10 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
       <div className="flex-1 flex overflow-hidden">
         {/* Isolated Tables Panel (Left) - scrollable list */}
         {isolatedTablesList.length > 0 && (
-          <div className="w-56 border-r border-[var(--border-color)] bg-[var(--bg-tertiary)]/30 flex flex-col">
-            <div className="px-3 py-2 border-b border-[var(--border-color)] flex items-center gap-2 flex-shrink-0">
-              <Table2 className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
-              <span className="text-[10px] font-medium text-[var(--text-secondary)]">
+          <div className="w-56 border-r border-border bg-muted/30 flex flex-col">
+            <div className="px-3 py-2 border-b border-border flex items-center gap-2 shrink-0">
+              <Table2 className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-[10px] font-medium text-muted-foreground">
                 Isolated ({isolatedTablesList.length})
               </span>
             </div>
@@ -454,14 +489,14 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
               {isolatedTablesList.map((table) => (
                 <div
                   key={table.fullName}
-                  className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg"
+                  className="bg-secondary border border-border rounded-lg"
                 >
                   {/* Table Header */}
-                  <div className="px-2.5 py-1.5 border-b border-[var(--border-color)] flex items-center gap-1.5 bg-[var(--bg-tertiary)]">
-                    <Table2 className="w-3 h-3 flex-shrink-0 text-[var(--text-secondary)]" />
+                  <div className="px-2.5 py-1.5 border-b border-border flex items-center gap-1.5 bg-muted">
+                    <Table2 className="w-3 h-3 shrink-0 text-muted-foreground" />
                     <span className="text-[10px] font-medium truncate flex-1">{table.table}</span>
                     {table.isWatched && (
-                      <Eye className="w-2.5 h-2.5 text-[var(--accent-green)] flex-shrink-0" />
+                      <Eye className="w-2.5 h-2.5 text-accent-green shrink-0" />
                     )}
                   </div>
                   {/* Columns - show all, no scroll */}
@@ -469,17 +504,20 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
                     {table.columns.map((col, idx) => (
                       <div
                         key={idx}
-                        className="px-2.5 py-0.5 text-[9px] flex items-center gap-1 border-b border-[var(--border-color)]/20 last:border-b-0"
+                        className="px-2.5 py-0.5 text-[9px] flex items-center gap-1 border-b border-border/20 last:border-b-0"
                       >
                         {col.isPrimaryKey ? (
-                          <Key className="w-2 h-2 text-[var(--accent-yellow)] flex-shrink-0" />
+                          <Key className="w-2 h-2 text-accent-yellow shrink-0" />
                         ) : (
-                          <span className="w-2 h-2 flex-shrink-0 text-[var(--text-secondary)]">◇</span>
+                          <span className="w-2 h-2 shrink-0 text-muted-foreground">◇</span>
                         )}
-                        <span className={`truncate flex-1 ${col.isPrimaryKey ? 'text-[var(--accent-yellow)]' : 'text-[var(--text-primary)]'}`}>
+                        <span className={cn(
+                          "truncate flex-1",
+                          col.isPrimaryKey ? "text-accent-yellow" : "text-foreground"
+                        )}>
                           {col.name}
                         </span>
-                        <span className="text-[var(--text-secondary)] text-[8px] opacity-60">{col.type}</span>
+                        <span className="text-muted-foreground text-[8px] opacity-60">{col.type}</span>
                       </div>
                     ))}
                   </div>
@@ -490,7 +528,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         )}
 
         {/* ERD Canvas */}
-        <div className="flex-1">
+        <div className="flex-1 relative">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -498,6 +536,9 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
             onEdgesChange={onEdgesChange}
             onNodeMouseEnter={onNodeMouseEnter}
             onNodeMouseLeave={onNodeMouseLeave}
+            onNodeClick={onNodeClick}
+            onNodeDragStart={onNodeDragStart}
+            onMove={(_, viewport) => setZoomLevel(viewport.zoom)}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             fitView
@@ -506,8 +547,13 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
             maxZoom={2}
             proOptions={{ hideAttribution: true }}
           >
-            <Background color="var(--border-color)" gap={20} size={1} />
+            <Background color="var(--border)" gap={20} size={1} />
           </ReactFlow>
+
+          {/* Zoom Level Indicator */}
+          <div className="absolute bottom-2 right-2 px-2 py-1 bg-secondary/80 rounded text-[10px] text-muted-foreground">
+            {Math.round(zoomLevel * 100)}%
+          </div>
         </div>
       </div>
     </motion.div>

@@ -18,6 +18,9 @@ export function SchemaGroupedTables({
   onStopAllWatch,
   onStartWatch,
   onStopWatch,
+  activeTab,
+  dryRunTargetTable,
+  onSetDryRunTarget,
 }: SchemaGroupedTablesProps) {
   // Group tables by schema
   const groupedTables = tables.reduce((acc, table) => {
@@ -62,21 +65,24 @@ export function SchemaGroupedTables({
         return (
           <div key={schema}>
             {/* Schema Header */}
-            <button
+            <div
               onClick={() => toggleSchema(schema)}
-              className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-[var(--bg-tertiary)] transition-colors"
+              className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-secondary transition-colors cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && toggleSchema(schema)}
             >
               <div className="flex items-center gap-2">
                 <motion.div
                   animate={{ rotate: isExpanded ? 90 : 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <ChevronRight className="w-3 h-3 text-[var(--text-secondary)]" />
+                  <ChevronRight className="w-3 h-3 text-muted-foreground" />
                 </motion.div>
-                <span className={`text-xs font-medium ${schema === "public" ? "text-[var(--accent-purple)]" : "text-[var(--text-secondary)]"}`}>
+                <span className={`text-xs font-medium ${schema === "public" ? "text-accent-purple" : "text-muted-foreground"}`}>
                   {schema}
                 </span>
-                <span className="text-[10px] text-[var(--text-secondary)]">
+                <span className="text-[10px] text-muted-foreground">
                   ({schemaTables.length})
                 </span>
               </div>
@@ -86,14 +92,14 @@ export function SchemaGroupedTables({
                     e.stopPropagation();
                     onStopAllWatch();
                   }}
-                  className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--accent-green)]/20 text-[var(--accent-green)] hover:bg-[var(--accent-red)]/20 hover:text-[var(--accent-red)] transition-colors"
+                  className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-accent-green/20 text-accent-green hover:bg-accent-red/20 hover:text-accent-red transition-colors"
                   title="Stop all watches"
                 >
                   {watchedCount} watching
                   <Eye className="w-3.5 h-3.5" />
                 </button>
               )}
-            </button>
+            </div>
 
             {/* Tables in this schema */}
             <AnimatePresence>
@@ -103,7 +109,7 @@ export function SchemaGroupedTables({
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="overflow-hidden pl-3"
+                  className="overflow-hidden p-2 space-y-1"
                 >
                   {schemaTables.map((table) => {
                     const fullName = `${table.schema}.${table.name}`;
@@ -111,6 +117,9 @@ export function SchemaGroupedTables({
                     const isSelected = selectedTable?.schema === table.schema && selectedTable?.table === table.name;
                     const recentChanges = getChangesForTable(table.schema, table.name);
                     const statsChange = tablesWithChanges.find(c => c.schema === table.schema && c.table === table.name);
+
+                    const isDryRunTarget = dryRunTargetTable === fullName;
+                    const showDryRunIcon = activeTab === "dryrun";
 
                     return (
                       <TableListItem
@@ -128,6 +137,13 @@ export function SchemaGroupedTables({
                             await onStopWatch(table.schema, table.name);
                           } else {
                             await onStartWatch(table.schema, table.name);
+                          }
+                        }}
+                        showDryRunIcon={showDryRunIcon}
+                        isDryRunTarget={isDryRunTarget}
+                        onSetDryRunTarget={() => {
+                          if (onSetDryRunTarget) {
+                            onSetDryRunTarget(isDryRunTarget ? null : fullName);
                           }
                         }}
                       />
