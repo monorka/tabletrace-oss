@@ -408,6 +408,25 @@ impl PostgresConnection {
             .as_ref()
             .ok_or_else(|| "Not connected".to_string())?;
 
+        // Safety check: reject SQL containing transaction control statements
+        let sql_upper = sql.to_uppercase();
+        if sql_upper.contains("COMMIT")
+            || sql_upper.contains("BEGIN")
+            || sql_upper.contains("ROLLBACK")
+        {
+            return Ok(DryRunResult {
+                success: false,
+                changes: vec![],
+                error: Some(
+                    "SQL cannot contain COMMIT, BEGIN, or ROLLBACK statements in dry run mode"
+                        .to_string(),
+                ),
+                rows_affected: 0,
+            });
+        }
+
+        info!("Dry run: Starting transaction");
+
         // Start transaction
         client
             .execute("BEGIN", &[])
@@ -646,12 +665,37 @@ impl PostgresConnection {
                 }
             }
             Err(e) => {
-                error_msg = Some(e.to_string());
+                // Get detailed error message including PostgreSQL error details
+                let mut msg = e.to_string();
+                if let Some(db_err) = e.as_db_error() {
+                    msg = format!(
+                        "{}: {} (code: {}, detail: {:?})",
+                        db_err.severity(),
+                        db_err.message(),
+                        db_err.code().code(),
+                        db_err.detail()
+                    );
+                }
+                error_msg = Some(msg);
             }
         }
 
-        // Always rollback
-        let _ = client.execute("ROLLBACK", &[]).await;
+        // Always rollback - this is critical for dry run safety
+        match client.execute("ROLLBACK", &[]).await {
+            Ok(_) => {
+                info!("Dry run: Transaction rolled back successfully");
+            }
+            Err(e) => {
+                error!("Dry run: ROLLBACK failed! {}", e);
+                // If rollback failed, return error even if SQL succeeded
+                return Ok(DryRunResult {
+                    success: false,
+                    changes: vec![],
+                    error: Some(format!("CRITICAL: Rollback failed - {}", e)),
+                    rows_affected: 0,
+                });
+            }
+        }
 
         Ok(DryRunResult {
             success: error_msg.is_none(),

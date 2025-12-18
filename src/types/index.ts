@@ -103,6 +103,10 @@ export interface TableListPanelProps {
   onStopWatch: (schema: string, table: string) => Promise<void>;
   onRefreshTables: () => void;
   onStopAllWatch: () => void;
+  // Dry Run target table selection
+  activeTab?: string;
+  dryRunTargetTable?: string | null;
+  onSetDryRunTarget?: (table: string | null) => void;
 }
 
 export interface SchemaGroupedTablesProps {
@@ -115,6 +119,10 @@ export interface SchemaGroupedTablesProps {
   onStartWatch: (schema: string, table: string) => Promise<void>;
   onStopWatch: (schema: string, table: string) => Promise<void>;
   onStopAllWatch: () => void;
+  // Dry Run target table selection
+  activeTab?: string;
+  dryRunTargetTable?: string | null;
+  onSetDryRunTarget?: (table: string | null) => void;
 }
 
 export interface TableListItemProps {
@@ -127,6 +135,10 @@ export interface TableListItemProps {
   statsChange?: TableChangeInfo;
   onSelect: () => void;
   onToggleWatch: () => void;
+  // Dry Run target selection
+  showDryRunIcon?: boolean;
+  isDryRunTarget?: boolean;
+  onSetDryRunTarget?: () => void;
 }
 
 export interface DiffResult {
@@ -174,6 +186,7 @@ export interface TableNodeData extends Record<string, unknown> {
   columns: { name: string; type: string; isPrimaryKey: boolean }[];
   isWatched: boolean;
   isHighlighted?: boolean;
+  zoomLevel?: number;
 }
 
 export interface CardinalityEdgeData extends Record<string, unknown> {
