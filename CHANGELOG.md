@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0] - 2025-12-18
+
+### Changed
+- Improved UI design and user experience across the application
+- Enhanced visual consistency and modern design elements
+
+---
+
 ## [0.1.0] - 2025-12-07
 
 ### Added
@@ -36,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ---
 
 <!-- Links -->
-[Unreleased]: https://github.com/monorka/tabletrace-oss/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/monorka/tabletrace-oss/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/monorka/tabletrace-oss/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/monorka/tabletrace-oss/releases/tag/v0.1.0
+
 
