@@ -122,21 +122,36 @@ jobs:
         if: startsWith(matrix.platform, 'macos')
         run: |
           APP="src-tauri/target/${{ matrix.target }}/release/bundle/macos/TableTrace.app"
+          BIN="$APP/Contents/MacOS/tabletrace"
 
-          # remove any broken signature
+          # remove any existing/broken signatures
           codesign --remove-signature "$APP" || true
+          codesign --remove-signature "$BIN" || true
 
-          # ① sign all executable files / dylibs inside app
-          find "$APP/Contents" -type f \( -perm +111 -o -name "*.dylib" \) -print0 | \
-            xargs -0 -I {} codesign --force --options runtime --timestamp \
-              --sign "Developer ID Application: MONORKA, K.K." "{}" || true
-
-          # ② sign the app bundle itself
-          codesign --force --deep --options runtime --timestamp \
+          # ① sign the main executable EXPLICITLY
+          codesign --force \
             --sign "Developer ID Application: MONORKA, K.K." \
+            --options runtime \
+            --timestamp \
+            "$BIN"
+
+          # ② sign any dylibs/frameworks if present
+          if [ -d "$APP/Contents/Frameworks" ]; then
+            find "$APP/Contents/Frameworks" -type f -perm -111 -print0 | \
+              xargs -0 -I {} codesign --force \
+                --sign "Developer ID Application: MONORKA, K.K." \
+                --options runtime \
+                --timestamp "{}"
+          fi
+
+          # ③ sign the app bundle LAST
+          codesign --force \
+            --sign "Developer ID Application: MONORKA, K.K." \
+            --options runtime \
+            --timestamp \
             "$APP"
 
-          # verify signature (no spctl here)
+          # verify (codesign only)
           codesign --verify --deep --strict --verbose=4 "$APP"
 
       # ==================================================
