@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.create_release.outputs.id }}
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
 
     steps:
       - uses: actions/checkout@v4
@@ -43,17 +44,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # ---------- Linux ----------
           - platform: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
-
-          # ---------- macOS ----------
           - platform: macos-latest
             target: aarch64-apple-darwin
           - platform: macos-latest
             target: x86_64-apple-darwin
-
-          # ---------- Windows ----------
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
 
@@ -90,14 +86,15 @@ jobs:
           workspaces: src-tauri
 
       # ==================================================
-      # macOS: build WITHOUT signing
+      # macOS: build APP ONLY (NO DMG)
       # ==================================================
-      - name: Build macOS (no sign)
+      - name: Build macOS (app only, no sign)
         if: startsWith(matrix.platform, 'macos')
         run: |
           npm run tauri build -- \
             --target ${{ matrix.target }} \
-            --no-sign
+            --no-sign \
+            --bundles app
 
       # ==================================================
       # macOS: import Developer ID certificate
@@ -116,7 +113,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
 
       # ==================================================
-      # macOS: re-sign FINAL app (inside → outside)
+      # macOS: re-sign FINAL app
       # ==================================================
       - name: Re-sign app (macOS)
         if: startsWith(matrix.platform, 'macos')
@@ -124,18 +121,15 @@ jobs:
           APP="src-tauri/target/${{ matrix.target }}/release/bundle/macos/TableTrace.app"
           BIN="$APP/Contents/MacOS/tabletrace"
 
-          # remove any existing/broken signatures
           codesign --remove-signature "$APP" || true
           codesign --remove-signature "$BIN" || true
 
-          # ① sign the main executable EXPLICITLY
           codesign --force \
             --sign "Developer ID Application: MONORKA, K.K." \
             --options runtime \
             --timestamp \
             "$BIN"
 
-          # ② sign any dylibs/frameworks if present
           if [ -d "$APP/Contents/Frameworks" ]; then
             find "$APP/Contents/Frameworks" -type f -perm -111 -print0 | \
               xargs -0 -I {} codesign --force \
@@ -144,18 +138,40 @@ jobs:
                 --timestamp "{}"
           fi
 
-          # ③ sign the app bundle LAST
           codesign --force \
             --sign "Developer ID Application: MONORKA, K.K." \
             --options runtime \
             --timestamp \
             "$APP"
 
-          # verify (codesign only)
           codesign --verify --deep --strict --verbose=4 "$APP"
 
       # ==================================================
-      # macOS: notarize + staple dmg
+      # macOS: CREATE DMG with Applications link
+      # ==================================================
+      - name: Create DMG (macOS)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          APP="src-tauri/target/${{ matrix.target }}/release/bundle/macos/TableTrace.app"
+          TMP="dmg-tmp"
+          OUT="src-tauri/target/${{ matrix.target }}/release/bundle/dmg"
+
+          rm -rf "$TMP"
+          mkdir -p "$TMP" "$OUT"
+
+          cp -R "$APP" "$TMP/TableTrace.app"
+          ln -s /Applications "$TMP/Applications"
+
+          hdiutil create \
+            -volname "TableTrace" \
+            -srcfolder "$TMP" \
+            -ov \
+            -format UDZO \
+            "$OUT/TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg"
+
+
+      # ==================================================
+      # macOS: notarize + staple (stable polling)
       # ==================================================
       - name: Notarize DMG (macOS)
         if: startsWith(matrix.platform, 'macos')
@@ -164,40 +180,54 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: |
-          DMG=$(ls src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -n 1)
+          DMG=$(ls src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
 
           xcrun notarytool submit "$DMG" \
             --apple-id "$APPLE_ID" \
             --team-id "$APPLE_TEAM_ID" \
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
-            --wait \
             --output-format json > notary-result.json
 
-          cat notary-result.json
-
-      - name: Fetch notarization log (macOS)
-        if: startsWith(matrix.platform, 'macos')
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-        run: |
           ID=$(jq -r '.id' notary-result.json)
-          echo "Submission ID: $ID"
 
-          xcrun notarytool log "$ID" \
-            --apple-id "$APPLE_ID" \
-            --team-id "$APPLE_TEAM_ID" \
-            --password "$APPLE_APP_SPECIFIC_PASSWORD"
+          for i in {1..30}; do
+            sleep 20
+            STATUS=$(xcrun notarytool info "$ID" \
+              --apple-id "$APPLE_ID" \
+              --team-id "$APPLE_TEAM_ID" \
+              --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+              --output-format json | jq -r '.status')
 
-      - name: Staple DMG (macOS)
-        if: startsWith(matrix.platform, 'macos')
-        run: |
-          DMG=$(ls src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -n 1)
+            echo "Notarization status: $STATUS"
+
+            if [ "$STATUS" = "Accepted" ]; then
+              break
+            fi
+
+            if [ "$STATUS" = "Invalid" ]; then
+              echo "Notarization failed"
+              exit 1
+            fi
+          done
+
           xcrun stapler staple "$DMG"
 
       # ==================================================
-      # Linux / Windows: tauri-action
+      # macOS: upload DMG to GitHub Release
+      # ==================================================
+      - name: Upload macOS DMG to Release
+        if: startsWith(matrix.platform, 'macos')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.release_upload_url }}
+          asset_path: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg
+          asset_name: TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg
+          asset_content_type: application/octet-stream
+
+      # ==================================================
+      # Linux / Windows
       # ==================================================
       - name: Build Linux / Windows
         if: "!startsWith(matrix.platform, 'macos')"
