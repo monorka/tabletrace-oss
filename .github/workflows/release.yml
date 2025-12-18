@@ -131,9 +131,9 @@ jobs:
             --sign "Developer ID Application: MONORKA, K.K." \
             "$APP"
 
-          # verify (must pass)
+          # verify signature only (must pass)
           codesign --verify --deep --strict --verbose=4 "$APP"
-          spctl -a -vv "$APP"
+
 
       # ==================================================
       # macOS: notarize + staple dmg
@@ -154,6 +154,15 @@ jobs:
             --wait
 
           xcrun stapler staple "$DMG"
+
+      # ==================================================
+      # macOS: Gatekeeper check (after notarization)
+      # ==================================================
+      - name: Gatekeeper check (macOS)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          APP="src-tauri/target/${{ matrix.target }}/release/bundle/macos/TableTrace.app"
+          spctl -a -vv "$APP"
 
       # ==================================================
       # Linux / Windows: tauri-action (normal)
