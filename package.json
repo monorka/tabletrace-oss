@@ -34,7 +34,7 @@
     "@xyflow/react": "^12.10.0",
     "framer-motion": "^12.23.25",
     "lucide-react": "^0.556.0",
-    "react": "^19.1.0",
+    "react": "^19.2.3",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.68.0",
     "tailwindcss": "^4.1.17",
