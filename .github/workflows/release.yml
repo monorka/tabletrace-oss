@@ -162,10 +162,18 @@ jobs:
 
       - name: Fetch notarization log (macOS)
         if: startsWith(matrix.platform, 'macos')
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: |
           ID=$(jq -r '.id' notary-result.json)
           echo "Submission ID: $ID"
-          xcrun notarytool log "$ID"
+
+          xcrun notarytool log "$ID" \
+            --apple-id "$APPLE_ID" \
+            --team-id "$APPLE_TEAM_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD"
 
       - name: Staple DMG (macOS)
         if: startsWith(matrix.platform, 'macos')
