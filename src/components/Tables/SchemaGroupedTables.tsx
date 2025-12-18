@@ -18,6 +18,9 @@ export function SchemaGroupedTables({
   onStopAllWatch,
   onStartWatch,
   onStopWatch,
+  activeTab,
+  dryRunTargetTable,
+  onSetDryRunTarget,
 }: SchemaGroupedTablesProps) {
   // Group tables by schema
   const groupedTables = tables.reduce((acc, table) => {
@@ -62,9 +65,12 @@ export function SchemaGroupedTables({
         return (
           <div key={schema}>
             {/* Schema Header */}
-            <button
+            <div
               onClick={() => toggleSchema(schema)}
-              className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-secondary transition-colors"
+              className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-secondary transition-colors cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && toggleSchema(schema)}
             >
               <div className="flex items-center gap-2">
                 <motion.div
@@ -93,7 +99,7 @@ export function SchemaGroupedTables({
                   <Eye className="w-3.5 h-3.5" />
                 </button>
               )}
-            </button>
+            </div>
 
             {/* Tables in this schema */}
             <AnimatePresence>
@@ -112,6 +118,9 @@ export function SchemaGroupedTables({
                     const recentChanges = getChangesForTable(table.schema, table.name);
                     const statsChange = tablesWithChanges.find(c => c.schema === table.schema && c.table === table.name);
 
+                    const isDryRunTarget = dryRunTargetTable === fullName;
+                    const showDryRunIcon = activeTab === "dryrun";
+
                     return (
                       <TableListItem
                         key={fullName}
@@ -128,6 +137,13 @@ export function SchemaGroupedTables({
                             await onStopWatch(table.schema, table.name);
                           } else {
                             await onStartWatch(table.schema, table.name);
+                          }
+                        }}
+                        showDryRunIcon={showDryRunIcon}
+                        isDryRunTarget={isDryRunTarget}
+                        onSetDryRunTarget={() => {
+                          if (onSetDryRunTarget) {
+                            onSetDryRunTarget(isDryRunTarget ? null : fullName);
                           }
                         }}
                       />

@@ -251,5 +251,9 @@ export const listenToChanges = async (
   });
 };
 
+// Direct exports for convenience
+export const getColumns = tauriCommands.getColumns;
+export const getRows = tauriCommands.getRows;
+
 export default tauriCommands;
 
