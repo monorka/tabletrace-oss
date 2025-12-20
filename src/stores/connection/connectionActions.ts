@@ -1,4 +1,4 @@
-import { tauriCommands, type PgConfig, type SupabaseConfig } from "../../lib/tauri";
+import { tauriCommands, type PgConfig, type SupabaseConfig } from "@/lib/tauri";
 import type { ConnectionState } from "./connectionState";
 
 // ===== Connection Actions =====
@@ -13,7 +13,7 @@ export const createConnectionActions = (
     set({ status: "connecting", connectionType: "postgres", errorMessage: undefined });
 
     try {
-      const response = await tauriCommands.connectPostgres(config);
+      const response = await tauriCommands.connectPostgres({ config });
 
       if (response.status === "connected") {
         set({ status: "connected", connectionType: "postgres", config });
@@ -42,7 +42,7 @@ export const createConnectionActions = (
     set({ status: "connecting", connectionType: "supabase", errorMessage: undefined });
 
     try {
-      const response = await tauriCommands.connectSupabase(config);
+      const response = await tauriCommands.connectSupabase({ config });
 
       if (response.status === "connected") {
         set({ status: "connected", connectionType: "supabase", supabaseConfig: config });
@@ -104,7 +104,7 @@ export const createConnectionActions = (
   // Test PostgreSQL connection without persisting
   testConnection: async (config: PgConfig) => {
     try {
-      const response = await tauriCommands.testConnection(config);
+      const response = await tauriCommands.testConnection({ config });
       return response.status === "connected";
     } catch {
       return false;
@@ -114,7 +114,7 @@ export const createConnectionActions = (
   // Test Supabase connection without persisting
   testSupabaseConnection: async (config: SupabaseConfig) => {
     try {
-      const response = await tauriCommands.testSupabaseConnection(config);
+      const response = await tauriCommands.testSupabaseConnection({ config });
       return response.status === "connected";
     } catch (error) {
       console.error("Supabase test connection failed:", error);

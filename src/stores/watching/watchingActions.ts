@@ -1,7 +1,6 @@
-import { tauriCommands } from "../../lib/tauri";
+import { tauriCommands } from "@/lib/tauri";
 import { getMaxDisplayRows } from "../connection/helpers";
 import type { ConnectionState } from "../connection/connectionState";
-import type { WatchedTableData } from "../connection/types";
 
 // ===== Table Watching Actions =====
 // Table watching actions extracted from connectionStore
@@ -33,7 +32,7 @@ export const createWatchingActions = (
       });
       set({ watchedTableData: newData });
 
-      await tauriCommands.startWatching(schema, table);
+      await tauriCommands.startWatching({ schema, table });
       set({ watchedTables: [...watchedTables, fullName] });
 
       // Load initial data
@@ -56,7 +55,7 @@ export const createWatchingActions = (
     const { watchedTables, watchedTableData } = get();
 
     try {
-      await tauriCommands.stopWatching(schema, table);
+      await tauriCommands.stopWatching({ schema, table });
 
       // Remove from watched tables
       set({ watchedTables: watchedTables.filter((t) => t !== fullName) });
@@ -79,9 +78,9 @@ export const createWatchingActions = (
 
     try {
       const [columns, rows, rowCount] = await Promise.all([
-        tauriCommands.getColumns(schema, table),
-        tauriCommands.getRows(schema, table, maxRows, 0),
-        tauriCommands.getRowCount(schema, table),
+        tauriCommands.getColumns({ schema, table }),
+        tauriCommands.getRows({ schema, table, limit: maxRows, offset: 0 }),
+        tauriCommands.getRowCount({ schema, table }),
       ]);
 
       // Get current state AFTER async operations to preserve any highlights added during fetch

@@ -1,4 +1,4 @@
-import { ColumnInfo, TableChange, ConnectionType } from "../../lib/tauri";
+import { ColumnInfo } from "@/lib/tauri";
 
 // ===== Type Definitions =====
 export type ConnectionStatus =

@@ -1,4 +1,4 @@
-import type { PgConfig, SupabaseConfig, TableInfo, ColumnInfo, TableChange, ConnectionType, TableStats, ForeignKeyInfo } from "../../lib/tauri";
+import type { PgConfig, SupabaseConfig, TableInfo, ColumnInfo, TableChange, ConnectionType, TableStats, ForeignKeyInfo } from "@/lib/tauri";
 import { UnlistenFn } from "@tauri-apps/api/event";
 import type {
   ConnectionStatus,

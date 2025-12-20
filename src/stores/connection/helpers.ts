@@ -1,4 +1,4 @@
-import { getLimit } from "../../config";
+import { getLimit } from "@/config";
 
 // ===== Helper Functions =====
 // Helper to get max display rows from settings (user override or config default)

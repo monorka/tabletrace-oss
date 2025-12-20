@@ -2,8 +2,8 @@
  * Diff Viewer Component - shows before/after comparison
  */
 
-import { calculateDiff } from "../../logic/diff";
-import { formatDiffValue } from "../../logic/formatters";
+import { calculateDiff } from "@/logic/diff";
+import { formatDiffValue } from "@/logic/formatters";
 
 interface DiffViewerProps {
   before?: Record<string, unknown>;

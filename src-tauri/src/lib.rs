@@ -1,6 +1,7 @@
 pub mod commands;
 pub mod db;
 pub mod services;
+pub mod shared;
 
 use db::postgres::create_shared_connection;
 use db::supabase::create_shared_supabase_client;

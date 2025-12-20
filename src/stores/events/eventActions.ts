@@ -1,5 +1,5 @@
-import { listenToChanges } from "../../lib/tauri/events";
-import type { TableChange } from "../../lib/tauri/types";
+import { listenToChanges } from "@/lib/tauri/events";
+import type { TableChange } from "@/lib/tauri/types";
 import type { ConnectionState } from "../connection/connectionState";
 
 // ===== Event Management Actions =====

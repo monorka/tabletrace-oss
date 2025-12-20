@@ -5,10 +5,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Clock, Plus, Pencil, Trash2, Link2, ChevronDown, ChevronUp } from "lucide-react";
-import { TableChange } from "../../lib/tauri";
-import { getCorrelatedEvents } from "../../stores/connectionStore";
-import { formatCorrelationMethod, formatConfidence, CorrelatedEventGroup } from "../../logic/correlation";
-import { TimelineViewProps } from "../../types";
+import { TableChange } from "@/lib/tauri";
+import { getCorrelatedEvents } from "@/stores/connectionStore";
+import { formatCorrelationMethod, formatConfidence, CorrelatedEventGroup } from "@/logic/correlation";
+import { TimelineViewProps } from "@/types";
 
 export function TimelineView({ events, onClearEvents }: TimelineViewProps) {
   const [viewMode, setViewMode] = useState<"all" | "grouped">("grouped");

@@ -145,9 +145,9 @@ export const createTableActions = (
 
     try {
       const [columns, rows, rowCount] = await Promise.all([
-        tauriCommands.getColumns(schema, table),
-        tauriCommands.getRows(schema, table, maxRows, 0),
-        tauriCommands.getRowCount(schema, table),
+        tauriCommands.getColumns({ schema, table }),
+        tauriCommands.getRows({ schema, table, limit: maxRows, offset: 0 }),
+        tauriCommands.getRowCount({ schema, table }),
       ]);
 
       set({
