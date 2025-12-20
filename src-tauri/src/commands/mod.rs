@@ -10,6 +10,7 @@ use crate::db::{
     watcher::{SharedWatcher, TableWatcher, WatcherConfig},
 };
 
+// ===== Type Definitions =====
 /// Connection state response
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConnectionStateResponse {
@@ -17,6 +18,7 @@ pub struct ConnectionStateResponse {
     pub message: Option<String>,
 }
 
+// ===== PostgreSQL Connection Commands =====
 /// Test PostgreSQL connection
 #[tauri::command]
 pub async fn test_connection(config: PgConfig) -> Result<ConnectionStateResponse, String> {
@@ -104,6 +106,7 @@ pub async fn get_connection_status(
     })
 }
 
+// ===== Schema Commands =====
 /// Get list of tables
 #[tauri::command]
 pub async fn get_tables(connection: State<'_, SharedConnection>) -> Result<Vec<TableInfo>, String> {
@@ -222,7 +225,7 @@ pub async fn get_rows(
         .map_err(|e| format!("Failed to get rows: {}", e))
 }
 
-// ============ Watcher Commands ============
+// ===== Table Watching Commands =====
 
 /// Start watching a table
 #[tauri::command]
@@ -335,7 +338,7 @@ pub async fn stop_all_watching(watcher: State<'_, SharedWatcher>) -> Result<(), 
     Ok(())
 }
 
-// ============ Supabase Commands ============
+// ===== Supabase Connection Commands =====
 
 /// Test Supabase connection
 #[tauri::command]
