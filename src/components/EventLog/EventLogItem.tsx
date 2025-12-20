@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { ChangeTypeBadge } from "../ui";
 import { DiffViewer } from "./DiffViewer";
-import { calculateDiff } from "../../utils";
+import { calculateDiff } from "../../logic/diff";
 
 interface EventLogItemProps {
   eventId: string;

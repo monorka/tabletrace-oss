@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { correlateEvents, CorrelatedEventGroup, CorrelationOptions } from "../lib/correlation";
+import { correlateEvents, CorrelatedEventGroup, CorrelationOptions } from "../logic/correlation";
 import { getMaxEvents } from "./connection/helpers";
 import type { ConnectionState } from "./connection/connectionState";
 import { createConnectionActions } from "./connection/connectionActions";

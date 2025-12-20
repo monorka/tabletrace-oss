@@ -1,11 +1,12 @@
 /**
  * Event Correlation Logic
  *
- * Re-exported from logic/correlation.ts for backward compatibility
+ * Groups related database changes together based on:
+ * - Timestamp proximity
+ * - Foreign key relationships
  */
 
-// Re-export from logic module
-export * from "../logic/correlation";
+import type { TableChange } from "../lib/tauri/types";
 
 /**
  * Correlation method used to group events
@@ -334,6 +335,3 @@ export function formatConfidence(confidence: number): string {
   if (confidence >= 0.7) return "Medium";
   return "Low";
 }
-
-
-
