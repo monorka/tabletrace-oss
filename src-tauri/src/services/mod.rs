@@ -3,5 +3,5 @@
 
 pub mod connection;
 pub mod schema;
-pub mod watching;
 pub mod supabase;
+pub mod watching;

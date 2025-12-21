@@ -24,9 +24,7 @@ pub async fn get_tables(connection: SharedConnection) -> Result<Vec<TableInfo>, 
 }
 
 /// Get foreign key relationships
-pub async fn get_foreign_keys(
-    connection: SharedConnection,
-) -> Result<Vec<ForeignKeyInfo>, String> {
+pub async fn get_foreign_keys(connection: SharedConnection) -> Result<Vec<ForeignKeyInfo>, String> {
     let conn = connection.read().await;
     ensure_connected(&conn)?;
     conn.get_foreign_keys()
@@ -35,9 +33,7 @@ pub async fn get_foreign_keys(
 }
 
 /// Get table statistics from pg_stat_user_tables
-pub async fn get_table_stats(
-    connection: SharedConnection,
-) -> Result<Vec<TableStats>, String> {
+pub async fn get_table_stats(connection: SharedConnection) -> Result<Vec<TableStats>, String> {
     let conn = connection.read().await;
     ensure_connected(&conn)?;
     conn.get_table_stats()
@@ -46,10 +42,7 @@ pub async fn get_table_stats(
 }
 
 /// Execute SQL in dry run mode
-pub async fn dry_run(
-    sql: String,
-    connection: SharedConnection,
-) -> Result<DryRunResult, String> {
+pub async fn dry_run(sql: String, connection: SharedConnection) -> Result<DryRunResult, String> {
     tracing::info!("Executing dry run SQL");
     let conn = connection.read().await;
     ensure_connected(&conn)?;

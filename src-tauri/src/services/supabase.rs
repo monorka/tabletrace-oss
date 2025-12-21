@@ -1,12 +1,12 @@
 // ===== Supabase Service =====
 // Business logic for Supabase connection management
 
-use tauri::{AppHandle, Emitter};
+use crate::commands::types::ConnectionStateResponse;
 use crate::db::{
     config::SupabaseConfig,
     supabase::{SharedSupabaseClient, SupabaseClient},
 };
-use crate::commands::types::ConnectionStateResponse;
+use tauri::{AppHandle, Emitter};
 
 /// Test Supabase connection
 pub async fn test_connection(config: SupabaseConfig) -> Result<ConnectionStateResponse, String> {

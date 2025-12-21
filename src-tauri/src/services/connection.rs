@@ -1,12 +1,12 @@
 // ===== Connection Service =====
 // Business logic for PostgreSQL connection management
 
+use crate::commands::types::ConnectionStateResponse;
 use crate::db::{
     config::PgConfig,
     postgres::{ConnectionState, SharedConnection},
     watcher::SharedWatcher,
 };
-use crate::commands::types::ConnectionStateResponse;
 
 /// Clear watcher state (helper function)
 pub async fn clear_watcher_state(watcher: &SharedWatcher) -> Result<(), String> {
@@ -68,9 +68,7 @@ pub async fn disconnect(
 }
 
 /// Get connection status
-pub async fn get_status(
-    connection: SharedConnection,
-) -> Result<ConnectionStateResponse, String> {
+pub async fn get_status(connection: SharedConnection) -> Result<ConnectionStateResponse, String> {
     let conn = connection.read().await;
 
     let (status, message) = match conn.state() {

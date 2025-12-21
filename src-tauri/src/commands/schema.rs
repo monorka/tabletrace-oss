@@ -1,12 +1,14 @@
 // ===== Schema Commands =====
 // Thin boundary layer that delegates to service layer
 
-use tauri::State;
 use crate::db::postgres::SharedConnection;
+use tauri::State;
 
 /// Get list of tables
 #[tauri::command]
-pub async fn get_tables(connection: State<'_, SharedConnection>) -> Result<Vec<crate::db::schema::TableInfo>, String> {
+pub async fn get_tables(
+    connection: State<'_, SharedConnection>,
+) -> Result<Vec<crate::db::schema::TableInfo>, String> {
     crate::services::schema::get_tables(connection.inner().clone()).await
 }
 
@@ -64,5 +66,6 @@ pub async fn get_rows(
     offset: Option<i64>,
     connection: State<'_, SharedConnection>,
 ) -> Result<Vec<serde_json::Value>, String> {
-    crate::services::schema::get_rows(schema, table, limit, offset, connection.inner().clone()).await
+    crate::services::schema::get_rows(schema, table, limit, offset, connection.inner().clone())
+        .await
 }

@@ -1,11 +1,8 @@
 // ===== Table Watching Commands =====
 // Thin boundary layer that delegates to service layer
 
+use crate::db::{postgres::SharedConnection, watcher::SharedWatcher};
 use tauri::{AppHandle, State};
-use crate::db::{
-    postgres::SharedConnection,
-    watcher::SharedWatcher,
-};
 
 /// Start watching a table
 #[tauri::command]
@@ -22,7 +19,8 @@ pub async fn start_watching(
         app,
         connection.inner().clone(),
         watcher.inner().clone(),
-    ).await
+    )
+    .await
 }
 
 /// Stop watching a table
