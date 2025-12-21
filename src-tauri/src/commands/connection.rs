@@ -1,13 +1,9 @@
 // ===== PostgreSQL Connection Commands =====
 // Thin boundary layer that delegates to service layer
 
-use tauri::State;
-use crate::db::{
-    config::PgConfig,
-    postgres::SharedConnection,
-    watcher::SharedWatcher,
-};
 use super::types::ConnectionStateResponse;
+use crate::db::{config::PgConfig, postgres::SharedConnection, watcher::SharedWatcher};
+use tauri::State;
 
 /// Test PostgreSQL connection
 #[tauri::command]
@@ -22,7 +18,12 @@ pub async fn connect_postgres(
     connection: State<'_, SharedConnection>,
     watcher: State<'_, SharedWatcher>,
 ) -> Result<ConnectionStateResponse, String> {
-    crate::services::connection::connect(config, connection.inner().clone(), watcher.inner().clone()).await
+    crate::services::connection::connect(
+        config,
+        connection.inner().clone(),
+        watcher.inner().clone(),
+    )
+    .await
 }
 
 /// Disconnect from PostgreSQL
@@ -31,7 +32,8 @@ pub async fn disconnect_postgres(
     connection: State<'_, SharedConnection>,
     watcher: State<'_, SharedWatcher>,
 ) -> Result<ConnectionStateResponse, String> {
-    crate::services::connection::disconnect(connection.inner().clone(), watcher.inner().clone()).await
+    crate::services::connection::disconnect(connection.inner().clone(), watcher.inner().clone())
+        .await
 }
 
 /// Get connection status

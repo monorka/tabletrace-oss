@@ -1,11 +1,11 @@
 // ===== Watching Service =====
 // Business logic for table watching operations
 
-use tauri::{AppHandle, Emitter};
 use crate::db::{
     postgres::SharedConnection,
     watcher::{SharedWatcher, TableWatcher, WatcherConfig},
 };
+use tauri::{AppHandle, Emitter};
 
 /// Initialize watcher if needed and return whether it needs to be started
 pub async fn ensure_watcher_initialized(
@@ -38,10 +38,7 @@ pub async fn add_table_to_watch(
 }
 
 /// Start event forwarding loop
-pub fn start_event_forwarding(
-    watcher: SharedWatcher,
-    app: AppHandle,
-) {
+pub fn start_event_forwarding(watcher: SharedWatcher, app: AppHandle) {
     tokio::spawn(async move {
         let rx_opt = {
             let watcher_guard = watcher.read().await;
@@ -58,7 +55,9 @@ pub fn start_event_forwarding(
             while let Some(change) = rx.recv().await {
                 tracing::info!(
                     "Emitting change event: {:?} on {}.{}",
-                    change.change_type, change.schema, change.table
+                    change.change_type,
+                    change.schema,
+                    change.table
                 );
                 if let Err(e) = app.emit("db-change", &change) {
                     tracing::error!("Failed to emit event: {}", e);

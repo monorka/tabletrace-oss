@@ -1,12 +1,9 @@
 // ===== Supabase Connection Commands =====
 // Thin boundary layer that delegates to service layer
 
-use tauri::{AppHandle, State};
-use crate::db::{
-    config::SupabaseConfig,
-    supabase::SharedSupabaseClient,
-};
 use super::types::ConnectionStateResponse;
+use crate::db::{config::SupabaseConfig, supabase::SharedSupabaseClient};
+use tauri::{AppHandle, State};
 
 /// Test Supabase connection
 #[tauri::command]

@@ -8,8 +8,7 @@ pub use crate::db::config::{PgConfig, SupabaseConfig};
 
 // Re-export schema types from db module
 pub use crate::db::schema::{
-    TableInfo, ForeignKeyInfo, TableStats, TableChange, DryRunResult, DryRunChange,
-    ChangeType,
+    ChangeType, DryRunChange, DryRunResult, ForeignKeyInfo, TableChange, TableInfo, TableStats,
 };
 
 // Re-export postgres types
