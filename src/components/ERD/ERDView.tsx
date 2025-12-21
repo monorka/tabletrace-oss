@@ -71,7 +71,7 @@ export function ERDView({ tables, foreignKeys, watchedTables, onHoveredTableChan
         await Promise.all(
           batch.map(async (table) => {
             try {
-              const cols = await tauriCommands.getColumns(table.schema, table.name);
+              const cols = await tauriCommands.getColumns({ schema: table.schema, table: table.name });
               newColumnsMap.set(
                 `${table.schema}.${table.name}`,
                 cols.map(c => ({

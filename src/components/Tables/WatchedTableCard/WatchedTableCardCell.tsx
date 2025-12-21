@@ -3,7 +3,7 @@
  */
 
 import { TableCell } from "@/components/ui/table";
-import { formatCellValue } from "@/utils/formatters";
+import { formatCellValue } from "@/logic/formatters";
 import { cn } from "@/lib/utils";
 
 interface WatchedTableCardCellProps {

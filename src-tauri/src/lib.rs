@@ -1,5 +1,7 @@
 pub mod commands;
 pub mod db;
+pub mod services;
+pub mod shared;
 
 use db::postgres::create_shared_connection;
 use db::supabase::create_shared_supabase_client;
@@ -31,28 +33,28 @@ pub fn run() {
         .manage(supabase_client)
         .invoke_handler(tauri::generate_handler![
             // PostgreSQL connection commands
-            commands::test_connection,
-            commands::connect_postgres,
-            commands::disconnect_postgres,
-            commands::get_connection_status,
+            commands::connection::test_connection,
+            commands::connection::connect_postgres,
+            commands::connection::disconnect_postgres,
+            commands::connection::get_connection_status,
             // Schema commands
-            commands::get_tables,
-            commands::get_foreign_keys,
-            commands::get_table_stats,
-            commands::dry_run,
-            commands::get_columns,
-            commands::get_row_count,
-            commands::get_rows,
+            commands::schema::get_tables,
+            commands::schema::get_foreign_keys,
+            commands::schema::get_table_stats,
+            commands::schema::dry_run,
+            commands::schema::get_columns,
+            commands::schema::get_row_count,
+            commands::schema::get_rows,
             // Watcher commands
-            commands::start_watching,
-            commands::stop_watching,
-            commands::get_watched_tables,
-            commands::stop_all_watching,
+            commands::watching::start_watching,
+            commands::watching::stop_watching,
+            commands::watching::get_watched_tables,
+            commands::watching::stop_all_watching,
             // Supabase commands
-            commands::test_supabase_connection,
-            commands::connect_supabase,
-            commands::disconnect_supabase,
-            commands::get_supabase_status,
+            commands::supabase::test_supabase_connection,
+            commands::supabase::connect_supabase,
+            commands::supabase::disconnect_supabase,
+            commands::supabase::get_supabase_status,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

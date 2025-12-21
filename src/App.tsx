@@ -24,6 +24,7 @@ import {
 import { initializeTheme, applyTheme } from "./utils/theme";
 
 function App() {
+  // ===== State Management (Zustand) =====
   const {
     status,
     tables,
@@ -43,12 +44,14 @@ function App() {
     errorMessage
   } = useConnectionStore();
 
+  // ===== Local State (useState) =====
   const [activeTab, setActiveTab] = useState<TabType>("tables");
   const [showConnectionDialog, setShowConnectionDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [layoutSettings, setLayoutSettings] = useState<LayoutSettings>(loadLayoutSettings);
   const [appSettings, setAppSettings] = useState<AppSettings>(loadAppSettings);
 
+  // ===== Side Effects (useEffect) =====
   // Initialize and apply theme
   useEffect(() => {
     initializeTheme(appSettings.theme);
@@ -75,6 +78,7 @@ function App() {
     prevAppSettingsRef.current = appSettings;
   }, [appSettings, watchedTables]);
 
+  // ===== Helper Functions =====
   const toggleTableList = () => {
     setLayoutSettings(prev => ({ ...prev, tableListOpen: !prev.tableListOpen }));
   };
@@ -96,6 +100,7 @@ function App() {
     }
   };
 
+  // ===== UI Rendering =====
   return (
     <div className="h-screen w-full flex flex-col bg-background">
       {/* Update Checker */}

@@ -155,6 +155,8 @@ jobs:
           APP="src-tauri/target/${{ matrix.target }}/release/bundle/macos/TableTrace.app"
           TMP="dmg-tmp"
           OUT="src-tauri/target/${{ matrix.target }}/release/bundle/dmg"
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
 
           rm -rf "$TMP"
           mkdir -p "$TMP" "$OUT"
@@ -167,7 +169,7 @@ jobs:
             -srcfolder "$TMP" \
             -ov \
             -format UDZO \
-            "$OUT/TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg"
+            "$OUT/TableTrace_${VERSION}_${{ matrix.target }}.dmg"
 
 
       # ==================================================
@@ -217,14 +219,19 @@ jobs:
       # ==================================================
       - name: Upload macOS DMG to Release
         if: startsWith(matrix.platform, 'macos')
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.release_upload_url }}
-          asset_path: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg
-          asset_name: TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg
-          asset_content_type: application/octet-stream
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
+          DMG_FILE="TableTrace_${VERSION}_${{ matrix.target }}.dmg"
+          DMG_PATH="src-tauri/target/${{ matrix.target }}/release/bundle/dmg/${DMG_FILE}"
+
+          curl -X POST \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary "@${DMG_PATH}" \
+            "${{ needs.create-release.outputs.release_upload_url }}?name=${DMG_FILE}"
 
       # ==================================================
       # Linux / Windows

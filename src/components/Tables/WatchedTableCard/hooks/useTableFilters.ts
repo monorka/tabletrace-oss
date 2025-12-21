@@ -3,8 +3,8 @@
  */
 
 import { useState, useMemo } from "react";
-import { parseFilter, matchesFilter } from "../utils/tableFilters";
-import { generatePk } from "../utils/tableKeys";
+import { parseFilter, matchesFilter } from "@/logic/tableFilters";
+import { generatePk } from "@/logic/tableKeys";
 
 interface UseTableFiltersProps {
   allRows: Record<string, unknown>[];

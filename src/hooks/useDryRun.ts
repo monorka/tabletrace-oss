@@ -24,7 +24,7 @@ export function useDryRun() {
     setResult(null);
 
     try {
-      const res = await tauriCommands.dryRun(sql);
+      const res = await tauriCommands.dryRun({ sql });
       setResult(res);
     } catch (err) {
       setResult({
