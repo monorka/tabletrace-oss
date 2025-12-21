@@ -4,8 +4,8 @@
 
 import { useMemo } from "react";
 import { useConnectionStore } from "@/stores/connectionStore";
-import { buildHighlightMap, buildCombinedRows } from "../utils/tableHighlights";
-import { getEffectivePkColumns, generatePk } from "../utils/tableKeys";
+import { buildHighlightMap, buildCombinedRows } from "@/logic/tableHighlights";
+import { getEffectivePkColumns, generatePk } from "@/logic/tableKeys";
 
 interface UseWatchedTableDataProps {
   schema: string;

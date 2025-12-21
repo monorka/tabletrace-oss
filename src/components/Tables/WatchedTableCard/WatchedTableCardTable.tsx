@@ -13,7 +13,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { WatchedTableCardCell } from "./WatchedTableCardCell";
-import { RowHighlight } from "./utils/tableHighlights";
+import type { RowHighlight } from "@/logic/tableHighlights";
 
 interface Column {
   name: string;
