@@ -153,8 +153,10 @@ jobs:
         if: startsWith(matrix.platform, 'macos')
         run: |
           APP="src-tauri/target/${{ matrix.target }}/release/bundle/macos/TableTrace.app"
-          TMP="dmg-tmp"
+          TMP="dmg-tmp-${{ matrix.target }}"
           OUT="src-tauri/target/${{ matrix.target }}/release/bundle/dmg"
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
 
           rm -rf "$TMP"
           mkdir -p "$TMP" "$OUT"
@@ -167,7 +169,7 @@ jobs:
             -srcfolder "$TMP" \
             -ov \
             -format UDZO \
-            "$OUT/TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg"
+            "$OUT/TableTrace_${VERSION}_${{ matrix.target }}.dmg"
 
 
       # ==================================================
@@ -215,6 +217,28 @@ jobs:
       # ==================================================
       # macOS: upload DMG to GitHub Release
       # ==================================================
+      - name: Prepare DMG upload
+        if: startsWith(matrix.platform, 'macos')
+        id: prepare_dmg
+        run: |
+          # Remove 'v' prefix from version if present (e.g., v0.3.0 -> 0.3.0)
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
+          DMG_FILE="TableTrace_${VERSION}_${{ matrix.target }}.dmg"
+          DMG_PATH="src-tauri/target/${{ matrix.target }}/release/bundle/dmg/${DMG_FILE}"
+
+          # Verify DMG file exists
+          if [ ! -f "$DMG_PATH" ]; then
+            echo "Error: DMG file not found at $DMG_PATH"
+            echo "Looking for files in: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/"
+            ls -la "src-tauri/target/${{ matrix.target }}/release/bundle/dmg/" || true
+            exit 1
+          fi
+
+          echo "DMG file found: ${DMG_FILE} (size: $(du -h "$DMG_PATH" | cut -f1))"
+          echo "dmg_file=${DMG_FILE}" >> $GITHUB_OUTPUT
+          echo "dmg_path=${DMG_PATH}" >> $GITHUB_OUTPUT
+
       - name: Upload macOS DMG to Release
         if: startsWith(matrix.platform, 'macos')
         uses: actions/upload-release-asset@v1
@@ -222,8 +246,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.release_upload_url }}
-          asset_path: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg
-          asset_name: TableTrace_${{ github.ref_name }}_${{ matrix.target }}.dmg
+          asset_path: ${{ steps.prepare_dmg.outputs.dmg_path }}
+          asset_name: ${{ steps.prepare_dmg.outputs.dmg_file }}
           asset_content_type: application/octet-stream
 
       # ==================================================
