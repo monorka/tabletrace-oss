@@ -48,7 +48,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "8.49.0",
-    "@typescript-eslint/parser": "^8.48.1",
+    "@typescript-eslint/parser": "^8.50.0",
     "@vitejs/plugin-react": "^4.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
